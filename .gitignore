@@ -61,7 +61,10 @@ tmp/
 *.log
 logs/
 
-# ── Local Files ─────────────────────────────────────────────────────────────────────
-*.txt
+# ── Local Files ──────────────────────────────────────────────────────────────
+# OJO: NO usar `*.txt` — ocultaba backend/requirements.txt y el build en Render
+# fallaba con `COPY backend/requirements.txt: not found` (el repo no lo tenía).
+# Solo se ignoran los .txt de la raíz (notas sueltas), no los de las imágenes.
+/*.txt
 
 graphify-out/
