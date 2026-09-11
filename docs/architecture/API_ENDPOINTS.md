@@ -6,7 +6,10 @@
 - **Formato**: JSON
 - **Auth**: Bearer JWT en `Authorization`
 - **Paginación**: `?page=1&per_page=20`
-- **Roles**: 🌐 Público | 🎓 Alumno | 👨‍🏫 Docente | 🔑 Admin | 🔒 Autenticado
+- **Roles**: 🌐 Público | 🎓 Alumno | 👨🏫 Docente | 🔑 Admin | 🔒 Autenticado
+- **Estado**: las filas marcadas como ⏳ están planificadas y **no** existen todavía.
+  Lo que no lleva marca es código en `backend/app/api/v1` y está cubierto por los
+  tests de `backend/tests`.
 
 ---
 
@@ -64,27 +67,49 @@ Query: `?category={slug}&level={level}&search={text}&sort_by={field}&page={n}&pe
 
 ---
 
-## Modules — `/api/v1/modules`
+## Modules — dentro de `/api/v1/courses` (temario)
+
+> Los módulos y lecciones van colgados del curso, no de un router propio: es el
+> contrato que usan el frontend del docente y los tests. Quién puede escribir no
+> depende sólo del rol: `ensure_course_manager` exige ser el docente del curso (o
+> impartir alguna de sus clases). Otro docente recibe 403.
 
 | Método | Ruta | Rol | Descripción |
 |--------|------|-----|-------------|
-| POST | `/` | 👨‍🏫🔑 | Crear módulo |
-| PUT | `/{id}` | 👨‍🏫🔑 | Editar |
-| DELETE | `/{id}` | 👨‍🏫🔑 | Eliminar |
-| GET | `/course/{course_id}` | 🔒 | Módulos de un curso |
+| GET | `/courses/{course_id}/modules` | 👨🏫🔑 | Temario completo (incluye `content` de cada lección) |
+| POST | `/courses/{course_id}/modules` | 👨🏫🔑 | Crear módulo |
+| PUT | `/courses/modules/{id}` | 👨🏫🔑 | Editar (título, descripción, orden, publicado) |
+| DELETE | `/courses/modules/{id}` | 👨🏫🔑 | Eliminar (arrastra sus lecciones) |
 
 ---
 
-## Lessons — `/api/v1/lessons`
+## Lessons — dentro de `/api/v1/courses`
 
 | Método | Ruta | Rol | Descripción |
 |--------|------|-----|-------------|
-| POST | `/` | 👨‍🏫🔑 | Crear lección |
-| PUT | `/{id}` | 👨‍🏫🔑 | Editar |
-| DELETE | `/{id}` | 👨‍🏫🔑 | Eliminar |
-| GET | `/module/{module_id}` | 🔒 | Lecciones de módulo |
-| POST | `/{id}/recorded-class` | 👨‍🏫 | Agregar clase grabada |
-| POST | `/{id}/progress` | 🎓 | Actualizar progreso |
+| POST | `/courses/modules/{module_id}/lessons` | 👨🏫🔑 | Crear lección |
+| PUT | `/courses/lessons/{id}` | 👨🏫🔑 | Editar (incluye `content`, `is_published`) |
+| DELETE | `/courses/lessons/{id}` | 👨🏫🔑 | Eliminar |
+| POST | `/courses/lessons/{id}/recorded-class` | 👨🏫 | ⏳ Clases grabadas (sin storage de vídeo) |
+| POST | `/courses/lessons/{id}/progress` | 🎓 | ⏳ El progreso lo escribe el docente, no el alumno (ver abajo) |
+
+---
+
+## Course Classes — `/api/v1/course-classes` y `/api/v1/courses/{id}/classes`
+
+| Método | Ruta | Rol | Descripción |
+|--------|------|-----|-------------|
+| POST | `/courses/{course_id}/classes` | 🔑🤝 | Crear clase |
+| GET | `/courses/{course_id}/classes` | 🌐 | Clases de un curso |
+| PATCH | `/course-classes/{class_id}` | 🔑🤝 | Editar clase |
+| PATCH | `/course-classes/{class_id}/assign-teacher` | 🔑🤝 | Asignar docente |
+| PATCH | `/course-classes/{class_id}/meeting-link` | 👨🏫🔑 | Enlace de la clase en vivo |
+| GET | `/course-classes/{class_id}/students` | 👨🏫🔑 | Alumnos de la clase (con `progress_percentage`) |
+| PATCH | `/course-classes/{class_id}/students/{student_id}/progress` | 👨🏫🔑 | Marcar el progreso del alumno (0-100) |
+| GET | `/teachers/me/classes` | 👨🏫 | Mis clases |
+
+Al guardar `progress_percentage = 100` el backend sella `completed_at`; si el
+porcentaje baja otra vez, se limpia (no es un estado terminal).
 
 ---
 
@@ -126,13 +151,15 @@ Query: `?category={slug}&level={level}&search={text}&sort_by={field}&page={n}&pe
 
 | Método | Ruta | Rol | Descripción |
 |--------|------|-----|-------------|
-| GET | `/progress` | 🎓 | Mi progreso general |
-| GET | `/progress/course/{id}` | 🎓 | Progreso en curso |
-| GET | `/profile` | 🎓 | Mi perfil |
-| PUT | `/profile` | 🎓 | Editar perfil |
-| GET | `/certificates` | 🎓 | Mis certificados |
-| GET | `/ratings` | 🎓 | Mis calificaciones |
-| GET | `/highlights` | 🎓 | Mi estado destacado |
+| GET | `/me/classes` | 🎓 | Mis clases (con docente, horario y enlace) |
+| GET | `/me/attendance` | 🎓 | Mi asistencia |
+| GET | `/me/progress` | 🎓 | Mi progreso por curso (sólo lectura: lo escribe el docente) |
+| GET | `/progress/course/{id}` | 🎓 | ⏳ Progreso detallado de un curso |
+| GET | `/profile` | 🎓 | ⏳ Mi perfil |
+| PUT | `/profile` | 🎓 | ⏳ Editar perfil |
+| GET | `/certificates` | 🎓 | ⏳ Mis certificados |
+| GET | `/ratings` | 🎓 | ⏳ Mis calificaciones |
+| GET | `/highlights` | 🎓 | ⏳ Mi estado destacado |
 
 ---
 
@@ -140,12 +167,17 @@ Query: `?category={slug}&level={level}&search={text}&sort_by={field}&page={n}&pe
 
 | Método | Ruta | Rol | Descripción |
 |--------|------|-----|-------------|
-| GET | `/courses` | 👨‍🏫 | Mis cursos |
-| GET | `/courses/{id}/students` | 👨‍🏫 | Alumnos de mi curso |
-| GET | `/courses/{id}/students/{sid}/progress` | 👨‍🏫 | Progreso alumno |
-| POST | `/students/{id}/rate` | 👨‍🏫 | Calificar alumno |
-| POST | `/students/{id}/highlight` | 👨‍🏫 | Marcar destacado |
-| GET | `/stats` | 👨‍🏫 | Mis estadísticas |
+| GET | `/me/courses` | 👨🏫 | Mis cursos (titular o con clase asignada) + conteos y progreso medio |
+| GET | `/me/students` | 👨🏫 | Alumnos de mis clases, con su progreso |
+| GET | `/me/classes` | 👨🏫 | Mis clases |
+| GET | `` | 🔑 | Listar docentes |
+| GET | `/eligible-users` | 🔑 | Usuarios candidatos a docente |
+| POST | `/{user_id}` | 🔑 | Dar de alta como docente |
+| DELETE | `/{user_id}` | 🔑 | Quitar el rol de docente |
+| GET | `/courses/{id}/students` | 👨🏫 | ⏳ Alumnos de un curso (hoy: `/course-classes/{id}/students`) |
+| POST | `/students/{id}/rate` | 👨🏫 | ⏳ Calificar alumno |
+| POST | `/students/{id}/highlight` | 👨🏫 | ⏳ Marcar destacado |
+| GET | `/stats` | 👨🏫 | ⏳ Mis estadísticas |
 
 ---
 

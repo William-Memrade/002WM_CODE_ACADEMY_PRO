@@ -9,7 +9,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from sqlalchemy import select as sa_select, func as sa_func
+from sqlalchemy import select as sa_select, func as sa_func, or_ as sa_or_
 from app.models.course import Course, Module, Lesson
 from app.models.payment import Enrollment
 from app.models.system import SystemSetting
@@ -184,12 +184,209 @@ class CourseService:
     async def add_module(self, course_id: UUID, title: str, description: str = None, sort_order: int = 0) -> dict:
         module = Module(course_id=course_id, title=title, description=description, sort_order=sort_order)
         module = await self.module_repo.create(module)
-        return {"id": module.id, "title": module.title}
+        return self._module_to_dict(module)
 
-    async def add_lesson(self, module_id: UUID, title: str, description: str = None, sort_order: int = 0, duration_minutes: int = None, is_free: bool = False) -> dict:
-        lesson = Lesson(module_id=module_id, title=title, description=description, sort_order=sort_order, duration_minutes=duration_minutes, is_free=is_free, is_published=True)
+    async def add_lesson(self, module_id: UUID, title: str, description: str = None, sort_order: int = 0, duration_minutes: int = None, is_free: bool = False, content: str = None) -> dict:
+        lesson = Lesson(module_id=module_id, title=title, description=description, content=content, sort_order=sort_order, duration_minutes=duration_minutes, is_free=is_free, is_published=True)
         lesson = await self.lesson_repo.create(lesson)
-        return {"id": lesson.id, "title": lesson.title}
+        return self._lesson_to_dict(lesson, include_content=True)
+
+    async def list_modules(self, course_id: UUID) -> list[dict]:
+        """Temario de un curso tal como lo edita el docente (incluye `content`)."""
+        modules = await self.module_repo.get_by_course(course_id)
+        return [
+            self._module_to_dict(m, lessons=[self._lesson_to_dict(l, include_content=True) for l in m.lessons])
+            for m in modules
+        ]
+
+    async def get_module_course_id(self, module_id: UUID) -> UUID | None:
+        """Curso al que pertenece un módulo (autorización del docente)."""
+        result = await self.db.execute(
+            sa_select(Module.course_id).where(Module.id == module_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_lesson_course_id(self, lesson_id: UUID) -> UUID | None:
+        """Curso al que pertenece una lección (autorización del docente)."""
+        result = await self.db.execute(
+            sa_select(Module.course_id)
+            .join(Lesson, Lesson.module_id == Module.id)
+            .where(Lesson.id == lesson_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def update_module(self, module_id: UUID, **fields) -> dict | None:
+        """Edita un módulo. Devuelve None si no existe (o RLS lo esconde)."""
+        module = await self.module_repo.get_by_id(module_id)
+        if not module:
+            return None
+        self._apply_fields(
+            module,
+            fields,
+            allowed={"title", "description", "sort_order", "is_published"},
+            nullable={"description"},
+        )
+        await self.module_repo.update(module)
+        return self._module_to_dict(module)
+
+    async def delete_module(self, module_id: UUID) -> bool:
+        """Borra un módulo; sus lecciones caen por FK (ON DELETE CASCADE)."""
+        return await self.module_repo.delete(module_id)
+
+    async def update_lesson(self, lesson_id: UUID, **fields) -> dict | None:
+        """Edita una lección. Devuelve None si no existe (o RLS la esconde)."""
+        lesson = await self.lesson_repo.get_by_id(lesson_id)
+        if not lesson:
+            return None
+        self._apply_fields(
+            lesson,
+            fields,
+            allowed={
+                "title", "description", "content", "sort_order",
+                "duration_minutes", "is_free", "is_published",
+            },
+            nullable={"description", "content", "duration_minutes"},
+        )
+        await self.lesson_repo.update(lesson)
+        return self._lesson_to_dict(lesson, include_content=True)
+
+    async def delete_lesson(self, lesson_id: UUID) -> bool:
+        """Borra una lección."""
+        return await self.lesson_repo.delete(lesson_id)
+
+    @staticmethod
+    def _apply_fields(obj, fields: dict, *, allowed: set[str], nullable: set[str]) -> None:
+        """
+        Aplica un `model_dump(exclude_unset=True)` sobre un modelo.
+
+        Sólo se tocan los campos de `allowed`; un None explícito sólo se escribe
+        en los campos de `nullable` (así no se borra un título por accidente).
+        """
+        for key, value in fields.items():
+            if key not in allowed:
+                continue
+            if value is None and key not in nullable:
+                continue
+            setattr(obj, key, value)
+
+    @staticmethod
+    def _module_to_dict(module: Module, lessons: list[dict] | None = None) -> dict:
+        return {
+            "id": str(module.id),
+            "course_id": str(module.course_id),
+            "title": module.title,
+            "description": module.description,
+            "sort_order": module.sort_order,
+            "is_published": module.is_published,
+            "lessons": lessons if lessons is not None else [],
+            "lessons_count": len(lessons) if lessons is not None else None,
+        }
+
+    @staticmethod
+    def _lesson_to_dict(lesson: Lesson, *, include_content: bool = False) -> dict:
+        data = {
+            "id": str(lesson.id),
+            "module_id": str(lesson.module_id),
+            "title": lesson.title,
+            "description": lesson.description,
+            "sort_order": lesson.sort_order,
+            "duration_minutes": lesson.duration_minutes,
+            "is_free": lesson.is_free,
+            "is_published": lesson.is_published,
+        }
+        if include_content:
+            data["content"] = lesson.content
+        return data
+
+    # ── Cursos del docente ──────────────────────────────────────────────
+
+    async def list_courses_for_teacher(self, teacher_id: uuid.UUID) -> list[dict]:
+        """
+        Cursos asignados a un docente (titular del curso o de alguna clase).
+
+        Los conteos se agregan con una consulta por métrica en vez de una por
+        curso: la pantalla del docente lista todos sus cursos de una vez.
+        """
+        from app.models.course_class import CourseClass
+
+        result = await self.db.execute(
+            sa_select(Course)
+            .outerjoin(CourseClass, CourseClass.course_id == Course.id)
+            .where(
+                Course.deleted_at.is_(None),
+                sa_or_(
+                    Course.teacher_id == teacher_id,
+                    CourseClass.teacher_id == teacher_id,
+                ),
+            )
+            .distinct()
+            .order_by(Course.title)
+        )
+        courses = list(result.scalars().all())
+        if not courses:
+            return []
+
+        course_ids = [c.id for c in courses]
+        modules_by_course = await self._count_by_course(
+            sa_select(Module.course_id, sa_func.count(Module.id))
+            .where(Module.course_id.in_(course_ids))
+            .group_by(Module.course_id)
+        )
+        lessons_by_course = await self._count_by_course(
+            sa_select(Module.course_id, sa_func.count(Lesson.id))
+            .join(Lesson, Lesson.module_id == Module.id)
+            .where(Module.course_id.in_(course_ids))
+            .group_by(Module.course_id)
+        )
+        students_by_course = await self._count_by_course(
+            sa_select(Enrollment.course_id, sa_func.count(Enrollment.id))
+            .where(
+                Enrollment.course_id.in_(course_ids),
+                Enrollment.status == "active",
+            )
+            .group_by(Enrollment.course_id)
+        )
+        classes_by_course = await self._count_by_course(
+            sa_select(CourseClass.course_id, sa_func.count(CourseClass.id))
+            .where(
+                CourseClass.course_id.in_(course_ids),
+                CourseClass.deleted_at.is_(None),
+            )
+            .group_by(CourseClass.course_id)
+        )
+        progress_rows = await self.db.execute(
+            sa_select(Enrollment.course_id, sa_func.avg(Enrollment.progress_percentage))
+            .where(
+                Enrollment.course_id.in_(course_ids),
+                Enrollment.status == "active",
+            )
+            .group_by(Enrollment.course_id)
+        )
+        progress_by_course = {
+            row[0]: round(float(row[1] or 0), 2) for row in progress_rows.all()
+        }
+
+        items = []
+        for course in courses:
+            items.append({
+                "id": str(course.id),
+                "title": course.title,
+                "slug": course.slug,
+                "level": course.level,
+                "is_active": course.is_active,
+                "is_teacher_owner": str(course.teacher_id) == str(teacher_id) if course.teacher_id else False,
+                "modules_count": modules_by_course.get(course.id, 0),
+                "lessons_count": lessons_by_course.get(course.id, 0),
+                "students_count": students_by_course.get(course.id, 0),
+                "classes_count": classes_by_course.get(course.id, 0),
+                "avg_progress": progress_by_course.get(course.id, 0.0),
+            })
+        return items
+
+    async def _count_by_course(self, query) -> dict:
+        """Ejecuta un `SELECT course_id, COUNT(...) GROUP BY course_id`."""
+        result = await self.db.execute(query)
+        return {row[0]: row[1] for row in result.all()}
 
     async def list_categories(self) -> list[dict]:
         cats = await self.category_repo.list_active()

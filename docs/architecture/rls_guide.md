@@ -115,6 +115,24 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON my_new_table TO academy_app;
 | `USING` | SELECT, UPDATE (target rows), DELETE | "Can this user **see/touch** this row?" | Deny all |
 | `WITH CHECK` | INSERT, UPDATE (new values) | "Can this user **create/change to** this row?" | Falls back to `USING` |
 
+## Teacher-Scoped Writes: Contenido y Progreso (migración 024)
+
+El docente escribe dos cosas que no están en `courses`: el temario
+(`modules`/`lessons`) y el progreso de sus alumnos (`enrollments`). Ambas
+escrituras las autorizan **dos capas** y hay que tocar las dos:
+
+| Capa | Dónde | Qué decide |
+|------|-------|-----------|
+| Aplicación | `middlewares/rbac.py` → `ensure_course_manager`, `ensure_class_manager` | 404 si el recurso no existe, 403 si el docente no es el titular del curso/clase |
+| Base de datos | `024_rls_teacher_curriculum_and_progress.sql` | `modules_delete`, `lessons_delete`, `enrollments_select` y `enrollments_update` incluyen al docente (del curso o de la clase) |
+
+> **Pitfall**: si sólo se añade la comprobación en Python, en producción (RLS
+> forzado) el `DELETE`/`UPDATE` afecta a **0 filas** y el endpoint responde 204 o
+> 200 como si hubiera funcionado. Si sólo se añade la política, cualquier docente
+> puede tocar cursos ajenos. Los tests de
+> `tests/test_teacher_curriculum_progress.py` cubren el camino completo (app +
+> RLS con el rol `academy_app`).
+
 ## Common Pitfalls
 
 ### 1. Superuser Bypasses RLS
@@ -154,6 +172,14 @@ For an **existing database**:
 # Connect to the postgres container
 docker exec -i academy-postgres psql -U postgres -d academy_db < database/migrations/009_rls_role_and_functions.sql
 docker exec -i academy-postgres psql -U postgres -d academy_db < database/migrations/010_rls_policies.sql
+```
+
+Las migraciones nuevas (024 en adelante) van por el servicio `migrate`, que las
+aplica en orden y las registra en `schema_migrations` (aplicarlas a mano con
+`psql` deja la tabla desincronizada y el runner intentará repetirlas):
+
+```bash
+cd docker && docker compose run --rm migrate
 ```
 
 After applying, restart the backend to pick up the new `DATABASE_RLS_URL`.

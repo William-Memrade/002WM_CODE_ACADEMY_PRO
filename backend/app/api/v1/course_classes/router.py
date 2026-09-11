@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.rls import get_rls_db
 from app.middlewares.rbac import (
+    ensure_class_manager,
     require_admin, require_coordinator, require_admin_or_coordinator,
     require_teacher, require_admin_or_coordinator_or_teacher,
 )
@@ -17,8 +18,10 @@ from app.schemas.course_class import (
     CourseClassCreate, CourseClassUpdate, CourseClassStatusUpdate,
     AssignTeacherRequest, MeetingLinkUpdateRequest, CourseClassCapacityResponse,
 )
+from app.schemas.enrollment import EnrollmentProgressUpdate
 from app.services.course_class_service import CourseClassService
 from app.services.audit_service import AuditService
+from app.services.enrollment_service import EnrollmentService
 
 router = APIRouter()
 
@@ -366,3 +369,46 @@ async def list_class_students(
             raise HTTPException(status_code=403, detail="You are not assigned to this class")
 
     return {"items": await svc.list_students_by_class(class_id)}
+
+
+@router.patch("/course-classes/{class_id}/students/{student_id}/progress")
+async def update_student_progress(
+    class_id: UUID,
+    student_id: UUID,
+    data: EnrollmentProgressUpdate,
+    request: Request,
+    current_user=Depends(require_admin_or_coordinator_or_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """
+    Actualiza el progreso de un alumno en una clase (docente de la clase, coordinador o admin).
+
+    El progreso vive en la inscripción (`enrollments.progress_percentage`), así que
+    la fila se localiza por (clase, alumno): es exactamente la fila que el docente
+    ve en su lista de alumnos.
+    """
+    await ensure_class_manager(db, current_user, class_id)
+
+    svc = EnrollmentService(db)
+    result = await svc.update_progress_by_class_student(
+        class_id, student_id, data.progress_percentage
+    )
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail="No active enrollment for this student in this class",
+        )
+
+    await AuditService(db).log_action(
+        actor_user=current_user,
+        action="enrollment_progress_updated",
+        entity_type="enrollment",
+        entity_id=result["enrollment_id"],
+        request=request,
+        metadata={
+            "course_class_id": str(class_id),
+            "student_id": str(student_id),
+            "progress_percentage": result["progress_percentage"],
+        },
+    )
+    return result

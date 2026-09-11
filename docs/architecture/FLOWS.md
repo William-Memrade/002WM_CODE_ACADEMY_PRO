@@ -162,6 +162,14 @@ progress_percentage = (lecciones_completed / total_lecciones_curso) * 100
 - Se almacena en `enrollments.progress_percentage` (desnormalización)
 - Dashboard muestra barra de progreso desde este campo
 
+> **Estado real (2026-09-11):** la fórmula de arriba **no** está implementada. Hoy
+> el progreso es un porcentaje que el docente de la clase escribe a mano
+> (`PATCH /course-classes/{class_id}/students/{student_id}/progress`, 0-100) y el
+> alumno lo lee (`GET /students/me/progress`). No existe `student_progress` ni
+> seguimiento por lección, así que no hay nada que recalcular; al llegar a 100 se
+> sella `enrollments.completed_at` (y se limpia si el porcentaje baja). La
+> automatización está pendiente en el Sprint 3 del `ROADMAP.md`.
+
 ---
 
 ## 5. Sistema de Reputación de Alumnos

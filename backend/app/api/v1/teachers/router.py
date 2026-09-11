@@ -12,11 +12,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.db.rls import get_rls_db
-from app.middlewares.rbac import require_admin
+from app.middlewares.rbac import get_teacher_profile, require_admin, require_teacher
 from app.models.user import User, UserRole, Teacher
 from app.models.course import Course
 from app.repositories.user_repository import UserRepository, RoleRepository
 from app.services.audit_service import AuditService
+from app.services.course_service import CourseService
+from app.services.enrollment_service import EnrollmentService
 
 router = APIRouter()
 
@@ -24,6 +26,44 @@ class TeacherUpdate(BaseModel):
     first_name: str | None = Field(None, min_length=2, max_length=120)
     last_name: str | None = Field(None, min_length=2, max_length=120)
     is_active: bool | None = None
+
+
+# ── Panel del docente (`/teachers/me/...`) ────────────────────────────────────
+# Van antes de las rutas con `{user_id}` para que "me" nunca se interprete como
+# un UUID.
+
+
+@router.get("/me/courses")
+async def list_my_courses(
+    current_user=Depends(require_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """
+    Cursos asignados al docente actual, con los conteos de su panel.
+
+    Cuenta como curso propio el que tiene asignado como titular (`courses.teacher_id`)
+    y también aquel donde solo imparte alguna clase (`course_classes.teacher_id`).
+    """
+    teacher = await get_teacher_profile(db, current_user)
+    if not teacher:
+        raise HTTPException(status_code=403, detail="Teacher profile not found")
+
+    svc = CourseService(db)
+    return {"items": await svc.list_courses_for_teacher(teacher.id)}
+
+
+@router.get("/me/students")
+async def list_my_students(
+    current_user=Depends(require_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """Alumnos activos de los cursos y clases del docente, con su progreso."""
+    teacher = await get_teacher_profile(db, current_user)
+    if not teacher:
+        raise HTTPException(status_code=403, detail="Teacher profile not found")
+
+    svc = EnrollmentService(db)
+    return {"items": await svc.list_teacher_students(teacher.id)}
 
 
 @router.get("")

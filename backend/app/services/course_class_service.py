@@ -452,7 +452,7 @@ class CourseClassService:
         }
 
     async def list_students_by_class(self, class_id: UUID) -> list[dict]:
-        """List active enrollments for a class with student details."""
+        """List active enrollments for a class with student details and progress."""
         from app.models.payment import Enrollment
         from app.models.user import User
 
@@ -474,6 +474,9 @@ class CourseClassService:
                 "student_name": f"{user.first_name} {user.last_name}".strip(),
                 "student_email": user.email,
                 "status": enrollment.status,
+                # El progreso vive en la inscripción; el docente lo edita desde aquí.
+                "progress_percentage": float(enrollment.progress_percentage or 0),
+                "completed_at": enrollment.completed_at.isoformat() if enrollment.completed_at else None,
             })
         return students
 

@@ -40,12 +40,13 @@
 | Reseñas Recientes | Últimas 5 reviews |
 
 ### Módulos
-- **Mis Cursos**: Lista de cursos asignados
-- **Gestión Temario**: Editar curso, módulos, lecciones
-- **Subir Videos**: Upload clases grabadas por lección
-- **Clases en Vivo**: CRUD con link de reunión
-- **Alumnos**: Ver inscritos, progreso, calificar, estrellas, marcar destacado
-- **Historial Cambios**: Versiones de contenido
+- **Mis Cursos**: ✅ `/teacher/courses` — cursos que imparte (titular o con clase asignada) con conteos reales (módulos, lecciones, clases, alumnos) y progreso medio
+- **Gestión Temario**: ✅ `/teacher/courses/{id}/curriculum` — alta, edición y borrado de módulos y lecciones; el backend exige ser docente del curso (`ensure_course_manager`)
+- **Alumnos**: ✅ `/teacher/students` — inscritos en sus clases, con edición del progreso (0-100 %); sin clase asignada el progreso se ve pero no se edita
+- **Clases en Vivo**: ✅ `/teacher/classes` — CRUD con link de reunión y asistencia
+- **Subir Videos**: ⏳ pendiente (no hay almacenamiento de vídeo)
+- **Historial Cambios**: ⏳ backend sí (content versioning), sin UI
+- ⏳ Calificar alumnos, estrellas y destacados (tablas `student_ratings`/`reviews` creadas, sin endpoints)
 
 ---
 
@@ -62,12 +63,12 @@
 
 ### Módulos
 - **Catálogo**: Buscar, filtrar, ver detalle de cursos
-- **Mis Cursos**: En progreso con barra, completados
-- **Aula Virtual**: Ver lecciones, videos, progreso por lección
-- **Pagos**: Subir comprobante, estado, historial
-- **Perfil**: Editar datos, avatar, ver estrellas, estado destacado
-- **Certificados**: Descargar PDF
-- **Feedback**: Escribir reseñas, enviar sugerencias
+- **Mis Cursos**: ✅ `/student/courses` — inscripciones activas con la barra de progreso que escribe su docente
+- ⏳ **Aula Virtual** (lecciones, vídeos, progreso por lección)
+- ✅ **Pagos**: Subir comprobante, estado, historial
+- ⏳ **Perfil**: Editar datos, avatar, ver estrellas, estado destacado
+- ⏳ **Certificados**: Descargar PDF (la página existe, pero está vacía)
+- ⏳ **Feedback**: Escribir reseñas, enviar sugerencias
 
 ---
 
@@ -90,8 +91,10 @@
 
 /teacher/dashboard
 /teacher/courses
-/teacher/courses/{id}/manage
+/teacher/courses/{id}/curriculum (temario: módulos y lecciones)
 /teacher/students
+/teacher/classes
+/teacher/classes/{id}/attendance
 
 /admin/dashboard
 /admin/courses

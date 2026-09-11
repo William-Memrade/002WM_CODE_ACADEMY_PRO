@@ -87,3 +87,102 @@ def verify_ownership(user_id, resource_owner_id, allow_admin: bool = True):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to access this resource",
         )
+
+
+# ── Resource Access Helpers (curso / clase) ─────────────────────────────────
+# El rol dice *qué tipo* de acción puede hacer alguien; estos helpers responden
+# *sobre qué recurso concreto*. Los usan el temario (módulos y lecciones) y el
+# progreso del alumno, que exigen ser el docente del curso o de la clase.
+
+
+def has_role(user, *roles: str) -> bool:
+    """True si el usuario tiene alguno de los roles indicados."""
+    user_roles = set(user.role_names) if hasattr(user, "role_names") else set()
+    return bool(user_roles.intersection(roles))
+
+
+async def get_teacher_profile(db, user):
+    """Perfil `teachers` del usuario actual (None si no es docente)."""
+    from sqlalchemy import select
+
+    from app.models.user import Teacher
+
+    result = await db.execute(select(Teacher).where(Teacher.user_id == user.id))
+    return result.scalar_one_or_none()
+
+
+async def ensure_course_manager(db, user, course_id) -> None:
+    """
+    Autoriza gestionar el temario de un curso.
+
+    Pasa admin y coordinador; un docente pasa si es el titular del curso
+    (`courses.teacher_id`) o si tiene alguna clase del curso asignada. Lanza 404
+    si el curso no existe (o RLS lo esconde) y 403 si no está asignado.
+    """
+    from sqlalchemy import select
+
+    from app.models.course import Course
+    from app.models.course_class import CourseClass
+
+    result = await db.execute(
+        select(Course.id, Course.teacher_id).where(
+            Course.id == course_id, Course.deleted_at.is_(None)
+        )
+    )
+    course = result.one_or_none()
+    if course is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
+
+    if has_role(user, "admin", "coordinator"):
+        return
+
+    teacher = await get_teacher_profile(db, user)
+    if teacher is not None:
+        if str(course.teacher_id) == str(teacher.id):
+            return
+        class_result = await db.execute(
+            select(CourseClass.id)
+            .where(
+                CourseClass.course_id == course_id,
+                CourseClass.teacher_id == teacher.id,
+                CourseClass.deleted_at.is_(None),
+            )
+            .limit(1)
+        )
+        if class_result.scalar_one_or_none() is not None:
+            return
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You are not assigned to this course",
+    )
+
+
+async def ensure_class_manager(db, user, class_id) -> None:
+    """
+    Autoriza operar sobre una clase (progreso de sus alumnos, asistencia…).
+
+    Pasa admin y coordinador; el docente pasa si es el titular de la clase.
+    """
+    from sqlalchemy import select
+
+    from app.models.course_class import CourseClass
+
+    result = await db.execute(
+        select(CourseClass.id, CourseClass.teacher_id).where(
+            CourseClass.id == class_id, CourseClass.deleted_at.is_(None)
+        )
+    )
+    course_class = result.one_or_none()
+    if course_class is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Class not found")
+
+    if has_role(user, "admin", "coordinator"):
+        return
+
+    teacher = await get_teacher_profile(db, user)
+    if teacher is None or str(course_class.teacher_id) != str(teacher.id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not assigned to this class",
+        )

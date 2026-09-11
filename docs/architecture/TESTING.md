@@ -70,8 +70,9 @@ engine se crea en import-time).
 | `tests/test_password_policy.py` | 7 | Reglas y bordes de longitud (8-50) | No |
 | `tests/test_rls.py` | 29 | Aislamiento por rol y propiedad, con la base aplicando RLS | Sí |
 | `tests/test_api_integration.py` | 9 | App completa en proceso: health, contrato, login, `/users/me`, RBAC | Sí |
+| `tests/test_teacher_curriculum_progress.py` | 14 | Temario (alta/edición/borrado + 403 de otro docente) y progreso (docente escribe, alumno lee, rango 0-100, `completed_at`) | Sí |
 
-Total: **143 casos** (105 sin servicios, 38 con servicios) en ~17 s. Otras herramientas
+Total: **158 casos** (105 sin servicios, 53 con servicios) en ~25 s. Otras herramientas
 que no son pytest: `scripts/smoke_api.py` (humo contra un deploy) y
 `scripts/check_schema_drift.py` (modelos del ORM vs base real).
 

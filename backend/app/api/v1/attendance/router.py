@@ -14,6 +14,7 @@ from app.middlewares.rbac import require_admin, require_teacher, require_student
 from app.schemas.attendance import AttendanceCreate, AttendanceUpdate
 from app.services.course_class_service import AttendanceService, CourseClassService
 from app.services.audit_service import AuditService
+from app.services.enrollment_service import EnrollmentService
 
 router = APIRouter()
 
@@ -124,6 +125,21 @@ async def list_my_classes(
     """List classes where the current student is actively enrolled (includes meeting_url)."""
     svc = CourseClassService(db)
     return {"items": await svc.get_classes_for_student(current_user.id)}
+
+
+@router.get("/students/me/progress")
+async def list_my_progress(
+    current_user=Depends(require_student_or_pending),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """
+    Progreso propio, una fila por curso inscrito.
+
+    El alumno solo lo consulta: lo edita el docente de su clase desde
+    `PATCH /course-classes/{class_id}/students/{student_id}/progress`.
+    """
+    svc = EnrollmentService(db)
+    return {"items": await svc.list_student_progress(current_user.id)}
 
 
 @router.patch("/attendance/{attendance_id}")

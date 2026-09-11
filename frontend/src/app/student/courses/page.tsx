@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { toast } from "@/components/ui/Toast";
+import { useStudentProgress } from "@/hooks/useStudentProgress";
 
 interface PaymentItem {
   id: string;
@@ -46,6 +47,8 @@ export default function StudentCoursesPage() {
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [classes, setClasses] = useState<Record<string, EnrolledClass>>({});
   const [loading, setLoading] = useState(true);
+  // El progreso lo escribe el docente: aquí sólo se muestra.
+  const { byCourse: progressByCourse } = useStudentProgress();
 
   useEffect(() => {
     const loadData = async () => {
@@ -104,6 +107,7 @@ export default function StudentCoursesPage() {
           {active.map((c) => {
             const badge = getStatusBadge("approved");
             const cls = classes[c.course_id];
+            const progress = progressByCourse[c.course_id];
             return (
               <div key={c.id} className="card">
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
@@ -137,6 +141,22 @@ export default function StudentCoursesPage() {
                     </>
                   )}
                 </div>
+                {progress && (
+                  <div style={{ marginBottom: "12px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8125rem", marginBottom: "4px" }}>
+                      <span style={{ color: "var(--color-text-muted)" }}>Tu progreso</span>
+                      <span>{progress.progress_percentage}%</span>
+                    </div>
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${progress.progress_percentage}%` }} />
+                    </div>
+                    {progress.completed_at && (
+                      <p style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)", marginTop: "6px" }}>
+                        ✅ Curso completado
+                      </p>
+                    )}
+                  </div>
+                )}
                 <p style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>
                   Inscrito el {c.created_at ? new Date(c.created_at).toLocaleDateString("es-MX") : "—"}
                 </p>

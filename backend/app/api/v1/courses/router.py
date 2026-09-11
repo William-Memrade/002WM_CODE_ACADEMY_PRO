@@ -12,10 +12,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.db.rls import get_rls_db
-from app.middlewares.rbac import require_admin, require_admin_or_teacher
+from app.middlewares.rbac import (
+    ensure_course_manager,
+    require_admin,
+    require_admin_or_teacher,
+)
 from app.models.course import Category
 from app.schemas.course import (
-    CourseCreate, CourseUpdate, ModuleCreate, LessonCreate,
+    CourseCreate, CourseUpdate, ModuleCreate, ModuleUpdate, LessonCreate, LessonUpdate,
     CategoryCreate, CategoryUpdate,
 )
 from app.services.course_service import CourseService, slugify
@@ -378,6 +382,25 @@ async def delete_category(
 
 
 # ── Module & Lesson Endpoints ─────────────────────────────────────────────────
+# Alta, edición y borrado del temario. El rol no basta: hay que ser el docente
+# del curso (o de alguna de sus clases) — lo comprueba `ensure_course_manager`.
+
+
+@router.get("/{course_id}/modules")
+async def list_course_modules(
+    course_id: UUID,
+    current_user=Depends(require_admin_or_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """
+    Temario completo de un curso (admin o docente asignado).
+
+    A diferencia del detalle público, incluye el `content` de cada lección: es la
+    vista con la que el docente edita.
+    """
+    await ensure_course_manager(db, current_user, course_id)
+    svc = CourseService(db)
+    return {"items": await svc.list_modules(course_id)}
 
 
 @router.post("/{course_id}/modules", status_code=status.HTTP_201_CREATED)
@@ -388,10 +411,71 @@ async def add_module(
     db: AsyncSession = Depends(get_rls_db),
 ):
     """Add a module to a course."""
+    await ensure_course_manager(db, current_user, course_id)
     svc = CourseService(db)
     return await svc.add_module(
         course_id=course_id, title=data.title,
         description=data.description, sort_order=data.sort_order,
+    )
+
+
+@router.put("/modules/{module_id}")
+async def update_module(
+    module_id: UUID,
+    data: ModuleUpdate,
+    request: Request,
+    current_user=Depends(require_admin_or_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """Edit a module (admin or assigned teacher)."""
+    svc = CourseService(db)
+    course_id = await svc.get_module_course_id(module_id)
+    if not course_id:
+        raise HTTPException(status_code=404, detail="Module not found")
+    await ensure_course_manager(db, current_user, course_id)
+
+    fields = data.model_dump(exclude_unset=True)
+    result = await svc.update_module(module_id, **fields)
+    if not result:
+        raise HTTPException(status_code=404, detail="Module not found")
+
+    await AuditService(db).log_action(
+        actor_user=current_user,
+        action="module_updated",
+        entity_type="module",
+        entity_id=module_id,
+        entity_label=result.get("title"),
+        request=request,
+        metadata={"course_id": str(course_id), "updated_fields": list(fields.keys())},
+    )
+    return result
+
+
+@router.delete("/modules/{module_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_module(
+    module_id: UUID,
+    request: Request,
+    current_user=Depends(require_admin_or_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """Delete a module and its lessons (admin or assigned teacher)."""
+    svc = CourseService(db)
+    course_id = await svc.get_module_course_id(module_id)
+    if not course_id:
+        raise HTTPException(status_code=404, detail="Module not found")
+    await ensure_course_manager(db, current_user, course_id)
+
+    deleted = await svc.delete_module(module_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Module not found")
+
+    await AuditService(db).log_action(
+        actor_user=current_user,
+        action="module_deleted",
+        entity_type="module",
+        entity_id=module_id,
+        request=request,
+        metadata={"course_id": str(course_id)},
     )
 
 
@@ -404,8 +488,74 @@ async def add_lesson(
 ):
     """Add a lesson to a module."""
     svc = CourseService(db)
+    course_id = await svc.get_module_course_id(module_id)
+    if not course_id:
+        raise HTTPException(status_code=404, detail="Module not found")
+    await ensure_course_manager(db, current_user, course_id)
+
     return await svc.add_lesson(
         module_id=module_id, title=data.title,
-        description=data.description, sort_order=data.sort_order,
+        description=data.description, content=data.content,
+        sort_order=data.sort_order,
         duration_minutes=data.duration_minutes, is_free=data.is_free,
+    )
+
+
+@router.put("/lessons/{lesson_id}")
+async def update_lesson(
+    lesson_id: UUID,
+    data: LessonUpdate,
+    request: Request,
+    current_user=Depends(require_admin_or_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """Edit a lesson (admin or assigned teacher)."""
+    svc = CourseService(db)
+    course_id = await svc.get_lesson_course_id(lesson_id)
+    if not course_id:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    await ensure_course_manager(db, current_user, course_id)
+
+    fields = data.model_dump(exclude_unset=True)
+    result = await svc.update_lesson(lesson_id, **fields)
+    if not result:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    await AuditService(db).log_action(
+        actor_user=current_user,
+        action="lesson_updated",
+        entity_type="lesson",
+        entity_id=lesson_id,
+        entity_label=result.get("title"),
+        request=request,
+        metadata={"course_id": str(course_id), "updated_fields": list(fields.keys())},
+    )
+    return result
+
+
+@router.delete("/lessons/{lesson_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_lesson(
+    lesson_id: UUID,
+    request: Request,
+    current_user=Depends(require_admin_or_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """Delete a lesson (admin or assigned teacher)."""
+    svc = CourseService(db)
+    course_id = await svc.get_lesson_course_id(lesson_id)
+    if not course_id:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+    await ensure_course_manager(db, current_user, course_id)
+
+    deleted = await svc.delete_lesson(lesson_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    await AuditService(db).log_action(
+        actor_user=current_user,
+        action="lesson_deleted",
+        entity_type="lesson",
+        entity_id=lesson_id,
+        request=request,
+        metadata={"course_id": str(course_id)},
     )
