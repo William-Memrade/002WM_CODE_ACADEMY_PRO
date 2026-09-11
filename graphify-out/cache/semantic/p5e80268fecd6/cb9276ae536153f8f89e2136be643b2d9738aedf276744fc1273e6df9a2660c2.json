@@ -1,1 +1,0 @@
-{"nodes": [{"id": "monitoreo_000wm_grafana_monitoring_stack_grafana_datasources", "label": "Grafana Datasources", "file_type": "code", "source_file": "Monitoreo/000WM_GRAFANA/monitoring-stack/config/grafana/datasources/datasources.yml", "rationale": "Configures Prometheus, Loki, and Tempo as datasources in Grafana."}], "edges": [], "hyperedges": []}

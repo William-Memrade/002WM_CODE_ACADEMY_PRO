@@ -1,1 +1,0 @@
-{"nodes": [{"id": "pipelines_rollback_release_scheduler", "label": "Rollback Release Scheduler Pipeline", "file_type": "code", "source_file": "BA/DevOps/NU1098018_ReposUtils_DevOps/pipelines/rollbackReleaseScheduler.yml", "rationale": "Evaluates releases and triggers rollbacks based on age and status rules."}], "edges": [], "hyperedges": []}

@@ -1,1 +1,0 @@
-{"nodes": [{"id": "pipelines_create_add_edit_vars", "label": "Create Add Edit Vars Pipeline", "file_type": "code", "source_file": "BA/DevOps/NU1098018_ReposUtils_DevOps/pipelines/createAddEditVars.yml", "rationale": "Manages Azure DevOps variable groups, allowing for creation, addition, and editing of variables with approval flows."}], "edges": [], "hyperedges": []}
