@@ -1,0 +1,45 @@
+# Contexto de build de la imagen BACKEND (context = raíz del repo: necesita database/migrations)
+# Sin este archivo, `COPY . .` mete venv/ y node_modules/ dentro de la imagen.
+
+.git
+.gitattributes
+.github
+.gitignore
+
+# Código y artefactos que NO van a la imagen
+frontend
+docs
+graphify-out
+docker/DEPLOY.md
+
+**/node_modules
+**/.next
+**/out
+
+backend/venv
+backend/.venv
+backend/env
+**/__pycache__
+**/*.pyc
+**/*.pyo
+backend/.pytest_cache
+backend/.ruff_cache
+backend/.mypy_cache
+backend/htmlcov
+backend/.coverage
+
+# Datos locales y pruebas
+backend/uploads
+backend/tests
+backend/test_login.json
+backend/tmp_query.sql
+
+# Secretos: nunca dentro de la imagen (van por env vars del proveedor)
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+
+*.log
+*.md

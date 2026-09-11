@@ -1,27 +1,45 @@
-# CodeAcademy Pro — Backend Dockerfile
+# CodeAcademy Pro — Backend en modo PRODUCCIÓN (FastAPI + ARQ worker)
+#
+# El contexto de build es la RAÍZ del repo (la imagen necesita database/migrations):
+#   docker build -f docker/Dockerfile.backend -t academy-backend .
+#
+# En Render: dockerfilePath=./docker/Dockerfile.backend, dockerContext=.
 FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# libmagic1 → python-magic | curl → HEALTHCHECK y diagnóstico
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+        libmagic1 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# System dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    libmagic1 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Python dependencies
-COPY requirements.txt .
+COPY backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Application code
-COPY . .
+# Código de la app (venv/, uploads/, tests/ y __pycache__ quedan fuera vía .dockerignore)
+COPY backend/ ./
 
-# Expose port
+# Migraciones SQL dentro de la imagen → las aplica el servicio `migrate`
+# con scripts/apply_migrations.py (idempotente).
+COPY database/migrations ./migrations
+
+# Nota de seguridad: se corre como root a propósito.
+# Motivo: si se monta un disco/volumen persistente en /app/uploads, el punto de
+# montaje llega como root y un usuario sin privilegios no podría escribir y la
+# subida de comprobantes fallaría con 500. Cuando los uploads pasen a S3 /
+# Supabase Storage (ver docker/DEPLOY.md) se puede crear el usuario no-root.
+RUN mkdir -p /app/uploads/proofs /app/uploads/qr
+
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=25s --retries=3 \
+    CMD curl -fsS "http://127.0.0.1:${PORT:-8000}/health" || exit 1
 
-# Run with uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Sin --reload (era de desarrollo). PORT lo inyecta el proveedor; en local cae a 8000.
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips '*'"]

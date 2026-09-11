@@ -1,17 +1,69 @@
-# CodeAcademy Pro — Frontend Dockerfile
-FROM node:20-alpine
+# CodeAcademy Pro — Frontend Next.js en modo PRODUCCIÓN (multi-stage)
+#
+# Contexto de build = frontend/ :
+#   docker build -f docker/Dockerfile.frontend -t academy-frontend ./frontend
+#
+# IMPORTANTE (Next.js): las `rewrites` se resuelven en BUILD time y quedan
+# horneadas en .next/routes-manifest.json. Por eso la URL del backend entra como
+# BUILD ARG, no como variable de runtime. En Render, las env vars de un servicio
+# Docker se pasan automáticamente como build args, así que basta con definir
+# API_PROXY_TARGET en el dashboard.
 
+# ── 1. Dependencias de build ──────────────────────────────────────────────────
+FROM node:20-alpine AS deps
 WORKDIR /app
+# npm agresivo con reintentos: el registro a veces corta un tarball a mitad
+# (ETIMEDOUT) y el build se pierde. El mount de caché acelera los rebuilds.
+RUN npm config set fetch-retries 5 \
+ && npm config set fetch-retry-mintimeout 20000 \
+ && npm config set fetch-retry-maxtimeout 180000 \
+ && npm config set fetch-timeout 600000
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci
 
-# Dependencies
-COPY package*.json ./
-RUN npm ci
+# ── 2. Dependencias de runtime (sin devDependencies) ──────────────────────────
+FROM node:20-alpine AS prod-deps
+WORKDIR /app
+RUN npm config set fetch-retries 5 \
+ && npm config set fetch-retry-mintimeout 20000 \
+ && npm config set fetch-retry-maxtimeout 180000 \
+ && npm config set fetch-timeout 600000
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
-# Application code
+# ── 3. Build de Next ──────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Destino del proxy /api/* → backend (build time)
+ARG API_PROXY_TARGET=http://backend:8000
+ENV API_PROXY_TARGET=$API_PROXY_TARGET
+
+# Solo si se opta por llamadas directas al backend en vez del proxy
+ARG NEXT_PUBLIC_API_URL=
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_RECAPTCHA_SITE_KEY=
+ENV NEXT_PUBLIC_RECAPTCHA_SITE_KEY=$NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN npm run build
 
-# Expose port
+# ── 4. Runtime ────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup -S app && adduser -S -G app app
+
+COPY --from=prod-deps --chown=app:app /app/node_modules ./node_modules
+COPY --from=builder  --chown=app:app /app/.next ./.next
+COPY --chown=app:app package.json next.config.mjs ./
+
+# El .next ya trae los estáticos; no hay carpeta public/ en este proyecto.
+USER app
 EXPOSE 3000
 
-# Dev server
-CMD ["npm", "run", "dev"]
+CMD ["sh", "-c", "node node_modules/next/dist/bin/next start -H 0.0.0.0 -p ${PORT:-3000}"]

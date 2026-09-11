@@ -3,8 +3,9 @@
 # ============================================================================
 
 # ── Environment ──────────────────────────────────────────────────────────────
+# .env.example SÍ se versiona: es la referencia de las variables que necesita el
+# despliegue (Render/Supabase). Los valores reales nunca van al repo.
 .env
-.env.example
 .env.local
 .env.*.local
 
@@ -63,4 +64,4 @@ logs/
 # ── Local Files ─────────────────────────────────────────────────────────────────────
 *.txt
 
-graphify-out
+graphify-out/

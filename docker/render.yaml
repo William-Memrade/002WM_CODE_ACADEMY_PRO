@@ -1,0 +1,107 @@
+# CodeAcademy Pro — Blueprint de Render (despliegue sin coste, arquitectura real)
+#
+# Uso: Render Dashboard → New → Blueprint → elegir este repo.
+# Los valores marcados con `sync: false` NO están en git: los pega en el dashboard
+# (Render los pide al crear el blueprint).
+#
+# Base de datos: Supabase (gestionada, free 500 MB) — no se crea Render Postgres
+# porque en el plan free expira a los 30 días.
+# Conexión: SIEMPRE el pooler de Supavisor en modo session (IPv4), porque la
+# conexión directa de Supabase es IPv6-only en proyectos free:
+#   postgresql+asyncpg://postgres.<project-ref>:<PASSWORD>@aws-0-<region>.pooler.supabase.com:5432/postgres
+#   (sin parámetros de ssl: asyncpg negocia TLS por defecto)
+
+services:
+  # ── API FastAPI ─────────────────────────────────────────────────────────────
+  - type: web
+    name: codeacademy-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./docker/Dockerfile.backend
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ENVIRONMENT
+        value: development          # prod exige DATABASE_RLS_URL (RLS real, ver DEPLOY.md)
+      - key: DEBUG
+        value: "true"               # expone /api/docs para probar la API a mano
+      - key: JWT_SECRET
+        generateValue: true         # Render lo genera y guarda
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_RLS_URL
+        sync: false                 # por ahora = DATABASE_URL
+      - key: CORS_ORIGINS
+        value: https://codeacademy-web.onrender.com
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false                 # service_role key (solo backend, NUNCA en el front)
+      - key: STORAGE_BUCKET
+        value: academy-storage
+      - key: LOG_LEVEL
+        value: INFO
+      # Redis gestionado de Render (definido abajo). Si preferís Upstash,
+      # borrad el bloque `keyvalue` y poned aquí vuestra REDIS_URL.
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: codeacademy-cache
+          property: connectionString
+      # Emails: sin SMTP real no sale ningún correo (ver DEPLOY.md)
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_USE_TLS
+        value: "true"
+
+  # ── Frontend Next.js ────────────────────────────────────────────────────────
+  - type: web
+    name: codeacademy-web
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./docker/Dockerfile.frontend
+    dockerContext: ./frontend
+    autoDeploy: true
+    envVars:
+      # OJO: se hornea en BUILD time (rewrites de Next). Render pasa las env vars
+      # del servicio Docker como build args, por eso funciona aquí.
+      # Si cambiás el nombre del servicio de la API, hay que redeployar el front.
+      - key: API_PROXY_TARGET
+        value: https://codeacademy-api.onrender.com
+      - key: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+        sync: false
+
+  # ── Redis (Key Value) ───────────────────────────────────────────────────────
+  # En plan free es en memoria: al reiniciar se pierden la cola de ARQ y los
+  # contadores de rate limiting (se recrean solos).
+  - type: keyvalue
+    name: codeacademy-cache
+    plan: free
+    region: oregon
+    maxmemoryPolicy: noeviction
+    ipAllowList: []               # solo tráfico interno de Render
+
+  # ── Worker ARQ (NO disponible en plan free → comentado) ─────────────────────
+  # Descomentar cuando haya plan de pago (~7 $/mes). Sin él no corren:
+  # emails, PDFs de certificado, recálculo de métricas, limpieza de versiones
+  # ni recordatorios de clases en vivo.
+  #
+  # - type: worker
+  #   name: codeacademy-worker
+  #   runtime: docker
+  #   plan: starter
+  #   region: oregon
+  #   dockerfilePath: ./docker/Dockerfile.backend
+  #   dockerContext: .
+  #   dockerCommand: arq app.services.background_jobs.WorkerSettings
+  #   envVars:
+  #     - fromGroup: codeacademy-api   # o repetir las mismas variables

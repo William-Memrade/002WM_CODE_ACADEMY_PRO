@@ -1,109 +1,157 @@
-version: "3.9"
+# CodeAcademy Pro — stack completo en contenedores (imágenes reales, tal como se
+# despliegan en la nube). Un solo archivo: no hay variantes dev/prod.
+#
+#   cd docker
+#   docker compose up -d --build
+#
+# Servicios: postgres · redis · migrate (una corrida) · backend · worker (ARQ) · frontend
+# Nombres genéricos, sin sufijo de ambiente. El stack de nube vive en render.yaml.
+#
+# Requiere que exista ../backend/.env: de ahí salen los secretos (JWT, SMTP,
+# Supabase). Los valores del bloque `environment:` tienen prioridad sobre env_file
+# y solo sobreescriben los HOSTS, para que los servicios se vean por la red interna
+# de docker en vez de por localhost.
+
+name: codeacademy
 
 services:
-  # ── Backend (FastAPI) ──────────────────────────────────────────────────
+  # ── Base de datos ───────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: academy-postgres
+    environment:
+      POSTGRES_DB: academy_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+    ports:
+      - "5433:5432"   # 5433 en el host para no chocar con un postgres local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d academy_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ── Redis (caché + cola de ARQ) ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: academy-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ── Migraciones + seed (una sola corrida, idempotente) ──────────────────────
+  # El backend espera a que este servicio termine bien antes de arrancar.
+  migrate:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    image: codeacademy-backend:local
+    container_name: academy-migrate
+    command: ["python", "scripts/apply_migrations.py", "--seed"]
+    env_file:
+      - ../backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/academy_db
+      DATABASE_RLS_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/academy_db
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # ── Backend FastAPI ─────────────────────────────────────────────────────────
   backend:
     build:
-      context: ../backend
-      dockerfile: ../docker/Dockerfile.backend
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    image: codeacademy-backend:local
     container_name: academy-backend
+    env_file:
+      - ../backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/academy_db
+      DATABASE_RLS_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/academy_db
+      REDIS_URL: redis://redis:6379/0
     ports:
       - "8000:8000"
     volumes:
-      - ../backend:/app
-    env_file:
-      - ../.env
+      - uploads_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # ── ARQ Worker (Background Jobs) ──────────────────────────────────────
+  # ── Worker ARQ (emails, certificados, métricas de dashboard) ────────────────
   worker:
     build:
-      context: ../backend
-      dockerfile: ../docker/Dockerfile.backend
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    image: codeacademy-backend:local
     container_name: academy-worker
-    command: arq app.services.background_jobs.WorkerSettings
-    volumes:
-      - ../backend:/app
+    command: ["arq", "app.services.background_jobs.WorkerSettings"]
     env_file:
-      - ../.env
+      - ../backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/academy_db
+      DATABASE_RLS_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-password}@postgres:5432/academy_db
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
-      - backend
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
 
-  # ── Frontend (Next.js) ────────────────────────────────────────────────
+  # ── Frontend Next.js (build de producción: next build + next start) ─────────
   frontend:
     build:
       context: ../frontend
       dockerfile: ../docker/Dockerfile.frontend
+      args:
+        # Build time: las rewrites de Next quedan horneadas en la imagen, así que
+        # el destino del proxy /api/* se fija acá (misma red interna de docker).
+        API_PROXY_TARGET: http://backend:8000
     container_name: academy-frontend
     ports:
       - "3000:3000"
-    volumes:
-      - ../frontend:/app
-      - /app/node_modules
-      - /app/.next
-    env_file:
-      - ../.env
+    # Sin env_file: el frontend solo consume NEXT_PUBLIC_* (inlined en build) y no
+    # necesita (ni debe tener) los secretos del backend.
+    # Si activás RECAPTCHA_ENABLED=true, hay que build-ear con
+    # --build-arg NEXT_PUBLIC_RECAPTCHA_SITE_KEY=<clave pública>.
     depends_on:
       - backend
     restart: unless-stopped
 
-  # ── PostgreSQL ────────────────────────────────────────────────────────
-  postgres:
-    image: postgres:16-alpine
-    container_name: academy-postgres
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: academy_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ../database/migrations:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-  # ── Redis ─────────────────────────────────────────────────────────────
-  redis:
-    image: redis:7-alpine
-    container_name: academy-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-  # ── Mailhog (Email testing) ──────────────────────────────────────────
+  # ── Mailhog: captura de correo SOLO para pruebas locales ────────────────────
+  # Los emails de la app (verificación, reset, avisos) salen por SMTP. Para verlos
+  # acá, en backend/.env: SMTP_HOST=mailhog, SMTP_PORT=1025, SMTP_USE_TLS=false.
+  # Bandeja: http://localhost:8025
   mailhog:
     image: mailhog/mailhog:latest
     container_name: academy-mailhog
     ports:
-      - "1025:1025"   # SMTP
-      - "8025:8025"   # Web UI
+      - "1025:1025"
+      - "8025:8025"
     restart: unless-stopped
 
 volumes:
   postgres_data:
   redis_data:
+  uploads_data:
