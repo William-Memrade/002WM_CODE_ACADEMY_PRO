@@ -40,13 +40,18 @@ docker/
 
 ```
 1. Lint + Type Check (ruff, mypy, eslint)
-2. Unit Tests (pytest, jest)
+2. Unit + Integration Tests (pytest — ver docs/architecture/TESTING.md)
 3. Build Docker images
 4. Push to Container Registry
 5. Deploy to Staging
 6. Integration Tests
 7. Deploy to Production (manual approval)
 ```
+
+> Estado: **este pipeline no existe todavía**. Hoy no hay `.github/workflows`, así que
+> nada corre automáticamente; las pruebas se lanzan a mano (comandos en
+> [TESTING.md](TESTING.md)). El plan de capas, los umbrales de estrés y lo que falta
+> están en ese mismo documento.
 
 ---
 

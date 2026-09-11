@@ -5,39 +5,37 @@ Validates that RLS policies enforce data isolation by role and ownership.
 These tests connect directly to PostgreSQL as 'academy_app' (non-superuser)
 and verify that SET LOCAL + RLS policies work as expected.
 
-Prerequisites:
-    - PostgreSQL running with migrations 009 and 010 applied.
-    - Role 'academy_app' created.
-    - At least the seed data from 003_seed_data.sql.
+Se corren contra la base de pruebas (tests/support.py: `academy_test`, creada con el
+migrador real, que es el que crea el rol academy_app y las políticas). Si PostgreSQL
+no está levantado, la suite se salta con el comando para levantarlo en vez de fallar.
 
 Run with:
-    pytest backend/tests/test_rls.py -v
+    pytest tests/test_rls.py -v
 """
 
-import asyncio
+import os
 import uuid
-from decimal import Decimal
 
 import pytest
 import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
 
 # Use the RLS-enforced role — NOT the postgres superuser.
-# Override via RLS_TEST_DB_URL env var if needed.
-import os
+# Apunta por defecto a la base de pruebas (tests/support.py); se puede pisar con
+# RLS_TEST_DB_URL para correr esta suite contra otra base.
+from tests import support
 
-TEST_DB_URL = os.getenv(
-    "RLS_TEST_DB_URL",
-    "postgresql+asyncpg://academy_app:academy_app_secure_pwd@localhost:5432/academy_db",
-)
+# Estos tests van contra PostgreSQL real: son capa de integración. El marker permite que
+# `pytest -m "not integration"` corra sólo lo unitario, sin necesitar servicios.
+pytestmark = pytest.mark.integration
 
-engine = create_async_engine(TEST_DB_URL, echo=False)
-TestSession = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+TEST_DB_URL = os.getenv("RLS_TEST_DB_URL", support.TEST_RLS_DATABASE_URL)
 
 
 # ---------------------------------------------------------------------------
@@ -61,12 +59,33 @@ async def clear_rls_context(session: AsyncSession):
 # ---------------------------------------------------------------------------
 
 @pytest_asyncio.fixture
-async def db():
-    """Provide a test session that rolls back after each test."""
-    async with TestSession() as session:
-        async with session.begin():
-            yield session
-        # Rollback is automatic since we never commit
+async def db(prepared_database: str):
+    """
+    Sesión de prueba que hace rollback al terminar (nunca commitea).
+
+    Depende de `prepared_database` (conftest): así correr solo este archivo también
+    deja la base creada, migrada y sembrada, en vez de depender de que otro test
+    la haya preparado antes.
+
+    El engine se crea acá y no a nivel de módulo: un engine de módulo queda atado
+    al event loop del primer test que lo usa, y a partir del segundo pytest-asyncio
+    falla con "got Future attached to a different loop". Se usa NullPool porque el
+    engine vive lo que dura un test: no hay nada que reciclar.
+    """
+    engine = create_async_engine(TEST_DB_URL, echo=False, poolclass=NullPool)
+    session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    try:
+        async with session_factory() as session:
+            try:
+                yield session
+            finally:
+                # Rollback EXPLÍCITO: `async with session.begin()` haría COMMIT al
+                # salir, y estos tests insertan usuarios/roles/cursos de prueba que
+                # no pueden quedar en la base (la corrida siguiente chocaría con la
+                # clave única de users.email).
+                await session.rollback()
+    finally:
+        await engine.dispose()
 
 
 @pytest_asyncio.fixture

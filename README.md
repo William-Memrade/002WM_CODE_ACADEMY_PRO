@@ -75,6 +75,7 @@ Academy_Test/
 - [Flujos de Negocio](docs/architecture/FLOWS.md)
 - [Paneles](docs/architecture/PANELS.md)
 - [DevOps](docs/architecture/DEVOPS.md)
+- [Pruebas y Calidad](docs/architecture/TESTING.md)
 - [Roadmap](docs/architecture/ROADMAP.md)
 - [Observabilidad](docs/architecture/OBSERVABILITY.md)
 - [Background Jobs](docs/architecture/BACKGROUND_JOBS.md)

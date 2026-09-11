@@ -9,7 +9,9 @@ import re
 
 PASSWORD_MIN_LENGTH = 8
 PASSWORD_MAX_LENGTH = 50
-PASSWORD_REQUIRED_SPECIAL_CHARS = "! % & * + , - . : ? @ ^ _ | ~"
+# Caracteres que satisfacen la regla. Tiene que coincidir con _SPECIAL_RE y con el
+# hint del frontend (frontend/src/app/(auth)/change-password/page.tsx).
+PASSWORD_REQUIRED_SPECIAL_CHARS = "_ ! ? *"
 
 # bcrypt only uses the first 72 *bytes* of the password.
 BCRYPT_MAX_PASSWORD_BYTES = 72
@@ -22,7 +24,7 @@ _SPECIAL_RE = re.compile(r"[_!?*]")
 def validate_password(password: str) -> str:
     """
     Validate password rules:
-    - 8–20 characters
+    - 8–50 characters (el máximo subió de 20 a 50 al agregar el chequeo de 72 bytes)
     - 1 uppercase letter
     - 1 digit
     - 1 special char from: _!?*

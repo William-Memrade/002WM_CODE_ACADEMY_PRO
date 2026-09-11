@@ -39,8 +39,9 @@ supabase==2.9.0
 # ── Email ────────────────────────────────────────────────────────
 jinja2==3.1.4
 
-# ── Dev & Testing ────────────────────────────────────────────────
-pytest==8.3.0
-pytest-asyncio==0.24.0
+# Ojo: httpx está acá a propósito aunque parezca de test — app/services/captcha_service.py
+# lo usa en runtime para verificar reCAPTCHA.
 httpx==0.27.0
-ruff==0.6.0
+
+# Dependencias de desarrollo y pruebas: backend/requirements-dev.txt (no van a la imagen)
+
