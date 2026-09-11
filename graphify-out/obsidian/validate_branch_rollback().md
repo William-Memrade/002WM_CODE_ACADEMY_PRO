@@ -1,0 +1,20 @@
+---
+source_file: "BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/PrGeneralValidations.py"
+type: "code"
+community: "Community 140"
+location: "L422"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_140
+---
+
+# validate_branch_rollback()
+
+## Connections
+- [[Función para validar que el título del Pull Request concuerde con el tipo de…]] - `rationale_for` [EXTRACTED]
+- [[PrGeneralValidations.py]] - `contains` [EXTRACTED]
+- [[log_error()_1]] - `calls` [EXTRACTED]
+- [[main()_10]] - `calls` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_140

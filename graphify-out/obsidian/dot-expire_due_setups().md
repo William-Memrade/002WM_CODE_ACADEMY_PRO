@@ -1,0 +1,21 @@
+---
+source_file: "Trading/001WM_STRATEGY_BOT/app/execution/pending_setup_store.py"
+type: "code"
+community: "Community 129"
+location: "L89"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_129
+---
+
+# .expire_due_setups()
+
+## Connections
+- [[dot-_parse_dt()_1]] - `calls` [EXTRACTED]
+- [[dot-iter_records()]] - `calls` [EXTRACTED]
+- [[dot-mark_status()]] - `calls` [EXTRACTED]
+- [[Any_5]] - `references` [EXTRACTED]
+- [[PendingSetupStore]] - `method` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_129

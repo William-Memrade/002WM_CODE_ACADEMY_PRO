@@ -1,0 +1,1 @@
+{"nodes": [{"id": "pipelines_delete_inactive_branches", "label": "Delete Inactive Branches Pipeline", "file_type": "code", "source_file": "BA/DevOps/NU1098018_ReposUtils_DevOps/pipelines/deleteInactiveBranches.yml", "rationale": "Identifies and deletes inactive branches, generating reports for the Wiki."}], "edges": [], "hyperedges": []}

@@ -1,0 +1,19 @@
+---
+source_file: "BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/Sonarqube/sonarq_access_commit_logs.py"
+type: "code"
+community: "Community 8"
+location: "L35"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_8
+---
+
+# build_exists_in_csv()
+
+## Connections
+- [[Path_24]] - `references` [EXTRACTED]
+- [[main()_70]] - `calls` [EXTRACTED]
+- [[sonarq_access_commit_logs.py]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_8

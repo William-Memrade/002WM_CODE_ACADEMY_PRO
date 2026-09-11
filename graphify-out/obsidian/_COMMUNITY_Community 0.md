@@ -1,0 +1,279 @@
+---
+type: community
+cohesion: 0.02
+members: 220
+---
+
+# Community 0
+
+**Cohesion:** 0.02 - loosely connected
+**Members:** 220 nodes
+
+## Members
+- [[Acorta una URL para mostrarla de forma más legible. Args url URL completa a…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Actualiza el archivo de reporte de horas compensatorias. Args compensatory…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Actualiza el reporte de compensatorios existente con los nuevos cálculos de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Actualiza los permisos de los repositorios en Azure DevOps.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[Actualiza los permisos de un repositorio en Azure DevOps. Args team_descriptor…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[Actualiza los registros de horas compensatorias aplicadas.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Actualiza un archivo CSV con los nuevos datos calculados. Args file La ruta…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Aplica las horas compensatorias solicitadas por el usuario. Args date (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Aplica las validaciones necesarias para solicitar compensatorios. Args date…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Aplica un compensatorio de excepción sin validar horas disponibles, pero…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Asigna el tipo de reviewer de acuerdo con su grupo y actualiza las banderas…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/reviewer_type.py
+- [[Asigna permisos de un pipeline CI a un servicio de conexión. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Asigna un rol a un grupo sobre un recurso. Args resource_id ID del recurso al…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Calcula el resultado de horas compensatorias después de aplicar un…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Calcula la diferencia en días entre dos fechas. Args end_date La fecha final…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Calcula la diferencia en horas entre dos tiempos dados en formato HHMM. - Si…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Calcula las horas disponibles, perdidas y tomadas para cada usuario. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Construye la expresión regular para detectar valores secretos. Excluye URLs,…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Convierte 'vars_data_add' a una lista de diccionarios si no es de ese tipo.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Convierte un string con formato 'nombrevalortipo' a una lista de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Convierte un valor a booleano. Args value El valor a convertir.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Convierte un valor decimal que representa la cantidad total de horas a una…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Convierte una cadena de horas en formato HHMM a su equivalente en horas como…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Convierte una cadena de texto en formato 'DDMMYYYY' a un objeto datetime.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Convierte una cadena de tiempo en formato HHMM a un valor decimal que…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Convierte una fecha ISO de JSON format a fecha y hora separadas. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Crea o reemplaza un archivo en el repositorio con los datos proporcionados.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Crea un nuevo reporte de horas compensatorias con los datos calculados. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Cuenta la cantidad de días hábiles (de lunes a viernes) entre dos fechas. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Desactiva todos los pipelines CI que tengan permisos otorgados para evitar que…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[El script permite crear un archivo y publicar en una rama especifica. Args pat…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Envía mensajes de advertencia al usuario sobre las horas compensatorias…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Esta función intenta cargar una cadena JSON y convertirla en un objeto. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Establece el pool dinámico según la rama de origen. Args source_branch (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Este archivo contiene todas las funciones de uso comun en los diferentes py.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Este script maneja el proceso de registro de horas compensatorias.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Este script permite crear un nuevo archivo o modificar uno existente.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Este script permite solicitar horas compensatorias aplicando las validaciones…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Este script proporciona funciones para editar un archivo específico y luego…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_publish_file.py
+- [[Extrae el tiempo en formato 'HHMM' a partir de un valor que puede ser un…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Funcion principal que permite crear o agregar variables a un grupo existente…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Funcion que permite crear un nuevo archivo o modificar uno existente, además,…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Funcion que permite enviar notificaciones a un canal de teams mediante un…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Funcion que permite hacer pull de una rama especifica. Args branch (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Funcion que permite retornar las variables de ambiente.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Función principal para otorgar permisos a svc y librarys sobre role…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Función principal que maneja el proceso de registro de horas compensatorias.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Función que divide una ruta en directorio y file. Args path (str) Ruta…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Función que genera los archivos de auditoría para el registro de horas…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Lista los permisos de los repositorios en Azure DevOps.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[Maneja la generación o actualización del reporte de horas compensatorias. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Obtiene el ID de la aprobación para un ID de build específico. Args response…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Obtiene el ID de un grupo dado su nombre y el descriptor del proyecto. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Obtiene el ID del servicio de conexión dado su nombre. Args svc_name Nombre…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Obtiene el descriptor del proyecto.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Obtiene el nombre del aprobador para un ID de aprobación específico. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Obtiene el nombre del aprobador para un ID de build específico. Args pat…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Obtiene el valor de horas (disponibles, perdidas o tomadas) del último registro…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Permite asignar el tipo de variable a la lista de variables Publica o Secreta…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Permite crear un nuevo grupo de variables con las variables Publicas o Secretas…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Permite crear un nuevo grupo de variables y asignar variables Publicas y…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Permite crear variables Publicas o Secretas en un grupo de variables ya…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Permite editar un archivo y luego publicarlo en una rama específica. Args file…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_publish_file.py
+- [[Permite escribir la data de tipo str. Args f (file object) Archivo abierto en…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Permite escribir la data en el archivo deseado. Args file (str) Nombre del…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Permite escribir la dfata de tipo list. Args f (file object) Archivo abierto…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Permite leer la data en el archivo deseado y retorna las lineas. Args file…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Permite leer un archivo csv y retorna las headers y data. Args file (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Permite limpiar la información del header y data. Args header (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Permite unificar la data de los procesos creados en la ejecución del pipeline…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Permite validar los parámetros ingresados para solicitar compensatorios y…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Permite validar si el grupo de variables ya existe o debe ser creado. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Permite validar si un grupo de variables existe y retorna las variables. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Procesa la entrada de datos para variables en formato JSON. Args vars_data…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Procesa los datos de un archivo para calcular horas compensatorias. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Procesa un servicio de conexión individual. Args svc Nombre del servicio de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Procesa una cadena de texto que representa una lista, limpiando caracteres…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Procesa una librería individual. Args library Nombre de la librería a…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Procesa una lista de variables dentro de un diccionario. Args variables…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Procesa una sola variable o un grupo de variables. Args variable Puede ser un…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Procesa una sola variable. Args var (dict) Diccionario con la información de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Publica los logs de las operaciones realizadas. Args group_name Nombre del…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Reemplaza caracteres especiales en el texto y mantiene distinción de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Reemplaza el contenido de un archivo con el nuevo valor deseado. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Reemplaza un segmento de datos en un archivo con un nuevo valor. Args file…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_publish_file.py
+- [[Retorna los grupos y teams existentes dentro de la organizacion. Args pat…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Revoca los permisos de los equipos en los repositorios según el log de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/revoke_permissions.py
+- [[Script para actualizar permisos de repositorios en Azure DevOps según la…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[Script para revocar permisos de equipos en repositorios según el log de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/revoke_permissions.py
+- [[Suma dos tiempos en formato 'HHMM' y devuelve el resultado también en formato…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Transforma los valores de horas en formato float a formato de tiempo HHMM para…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Valida el tipo tipo de wit deseado y que su estado sea diferente a cerrado.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Valida los parámetros ingresados por el usuario para el registro de horas…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Valida que el nombre del svc contenga -dev o -qa (no productivos). Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[Valida que la descripción no esté vacía ni sea la descripción predeterminada.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Valida que la fecha de solicitud de compensatorio sea mayor a 36 horas y menor…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Valida que la fecha y hora de solicitud de compensatorio no coincidan con el…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Valida si el directorio existe, si no lo crea. Args directory (str) Ruta del…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[Valida si el usuario tiene permisos para agregar grupos de variables.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[Valida si la fecha sigue el formato ddmmyyyy. Args date (str) Fecha a…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Valida si un intervalo de fecha y horas se solapa entre si. Args date (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Valida si un intervalo de horas se solapa entre si. Args row (list) Lista que…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[Valida y convierte una cadena de tiempo en formato HHMM a un objeto datetime.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Verifica las horas compensatorias registradas para el usuario actual y envía…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[Verifica los permisos de los repositorios en Azure DevOps.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[Verifica si en un archivo CSV los registros cumplen con la condicion de mes…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[actualizar_permisos_limpieza.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[add_edit_vars()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[add_time_to_format()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[apply_compensatories.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[apply_compensatory()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[apply_exception_compensatory()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[apply_validations()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[assign_pipeline_ci_to_resource()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[assign_reviewer_type()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/reviewer_type.py
+- [[assign_role_to_resource()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[assign_secret_type()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[clean_header_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[convert_to_decimal()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[convert_to_json_or_diclist()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[convert_vars_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[count_days_advance()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[create_add_edit_vars.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[create_and_publish()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[create_directory()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[create_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[create_file_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[create_file_repository()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[create_library()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[create_library_add_edit_vars()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[create_new_report()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[create_publish_file.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[date_format()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[date_validate()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[desactivate_all_pipelines_grant_permission()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[diff_dates()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[diff_hours()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[edit_and_publish()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_publish_file.py
+- [[edit_publish_file.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_publish_file.py
+- [[enviar_notificacion_teams_webhook()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[extract_time()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[float_to_time_format()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[format_date_approved()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[generate_audit_files()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[generate_audit_files()_1]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[get_approval_id()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[get_approver_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[get_directoy_and_file_path()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[get_global_vars()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[get_group_id()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[get_hours_result()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[get_hours_result()_1]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[get_latest_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[get_next_filename()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[get_project_descriptor()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[get_service_connection_id()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[get_value_hours()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[grant_permission_to_library_svc.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[grant_permissions()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[handle_report_generation()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[is_sprint_banned()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[parse_vars_string()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[permission_list()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[permission_update()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[process_file_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[process_library()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[process_objstr_to_list()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[process_service()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[process_variable()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[process_variables()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[process_vars_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[publish_logs()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[pull_repository()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[push_repository()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[read_csv_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[read_data_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[read_file_content_utf8()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[registry_compensatories.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[registry_compensatory()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[replace_data_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_publish_file.py
+- [[replace_file_content()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[retieve_single_variable()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[retrieve_groups_teams()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[retrieved_approval()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[revoke_permissions()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/revoke_permissions.py
+- [[revoke_permissions.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/revoke_permissions.py
+- [[sanitize_text()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[secret_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[section_message()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[send_compensatory_messages()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[set_dinamic_pool()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[short_url()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[time_format()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[time_format_to_float()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[to_bool()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[transform_data_float()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[update_compensatory()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[update_csv_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[update_existing_report()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[update_permission()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[update_report_compensatory()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[utils_functions.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[validate_compensatory_date()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[validate_compensatory_hour()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[validate_description()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[validate_hours_advance()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[validate_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/grant_permission_to_library_svc.py
+- [[validate_parameters()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/apply_compensatories.py
+- [[validate_parameters()_1]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[validate_user()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[validate_wit()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[verify_compensatories()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/registry_compensatories.py
+- [[verify_csv()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[verify_exist_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[verify_library()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_add_edit_vars.py
+- [[verify_library_get_vars()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[verify_permission()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/actualizar_permisos_limpieza.py
+- [[write_data_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[write_data_list_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+- [[write_data_str_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_publish_file.py
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Community_0
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 114 edges to [[_COMMUNITY_Community 1]]
+- 65 edges to [[_COMMUNITY_Community 9]]
+- 54 edges to [[_COMMUNITY_Community 2]]
+- 29 edges to [[_COMMUNITY_Community 8]]
+- 10 edges to [[_COMMUNITY_Community 98]]
+- 9 edges to [[_COMMUNITY_Community 181]]
+- 8 edges to [[_COMMUNITY_Community 87]]
+- 8 edges to [[_COMMUNITY_Community 85]]
+- 7 edges to [[_COMMUNITY_Community 200]]
+- 6 edges to [[_COMMUNITY_Community 20]]
+- 6 edges to [[_COMMUNITY_Community 174]]
+- 5 edges to [[_COMMUNITY_Community 167]]
+- 5 edges to [[_COMMUNITY_Community 27]]
+- 5 edges to [[_COMMUNITY_Community 46]]
+- 4 edges to [[_COMMUNITY_Community 218]]
+- 4 edges to [[_COMMUNITY_Community 140]]
+- 4 edges to [[_COMMUNITY_Community 122]]
+- 2 edges to [[_COMMUNITY_Community 260]]
+- 2 edges to [[_COMMUNITY_Community 13]]
+- 2 edges to [[_COMMUNITY_Community 242]]
+- 2 edges to [[_COMMUNITY_Community 215]]
+- 2 edges to [[_COMMUNITY_Community 259]]
+- 1 edge to [[_COMMUNITY_Community 258]]
+- 1 edge to [[_COMMUNITY_Community 418]]
+- 1 edge to [[_COMMUNITY_Community 285]]
+- 1 edge to [[_COMMUNITY_Community 113]]
+- 1 edge to [[_COMMUNITY_Community 128]]
+- 1 edge to [[_COMMUNITY_Community 108]]
+- 1 edge to [[_COMMUNITY_Community 70]]
+- 1 edge to [[_COMMUNITY_Community 89]]
+- 1 edge to [[_COMMUNITY_Community 233]]
+
+## Top bridge nodes
+- [[utils_functions.py]] - degree 116, connects to 24 communities
+- [[section_message()]] - degree 125, connects to 17 communities
+- [[get_global_vars()]] - degree 12, connects to 6 communities
+- [[create_publish_file.py]] - degree 33, connects to 5 communities
+- [[verify_exist_file()]] - degree 30, connects to 4 communities

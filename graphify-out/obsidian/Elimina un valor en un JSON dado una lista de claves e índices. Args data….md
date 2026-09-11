@@ -1,0 +1,18 @@
+---
+source_file: "BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/rollbackActualizacionMasivaPipelines/tipos_rollback/restaurar_cambios_conservando_adicionales.py"
+type: "rationale"
+community: "Community 107"
+location: "L713"
+tags:
+  - graphify/rationale
+  - graphify/EXTRACTED
+  - community/Community_107
+---
+
+# Elimina un valor en un JSON dado una lista de claves e índices. Args: data…
+
+## Connections
+- [[delete_value_by_path()_1]] - `rationale_for` [EXTRACTED]
+- [[delete_value_by_path()]] - `rationale_for` [EXTRACTED]
+
+#graphify/rationale #graphify/EXTRACTED #community/Community_107

@@ -1,0 +1,279 @@
+---
+type: community
+cohesion: 0.02
+members: 214
+---
+
+# Community 1
+
+**Cohesion:** 0.02 - loosely connected
+**Members:** 214 nodes
+
+## Members
+- [[Actualiza el estado de un repositorio en el CMDB.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/decomiso_repositorios/main.py
+- [[Actualiza el nombre de un pipeline. Args pipe_id (int) ID del pipeline.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Actualiza el nombre de un proyecto en SonarQube.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/decomiso_repositorios/main.py
+- [[Actualiza la clave del proyecto en SonarQube cuando el nombre del repositorio…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Actualiza los datos de un elemento de acuerdo al tipo y el valor proporcionado.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Actualiza los nombres de los serviceConecctions utilizando API. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Actualiza los pipelines CI asociados al repositorio. Args new_repo_name (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Actualiza los pipelines CICD del repositorio.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Actualiza nombre yo estado de un pipeline. Args pipe (dict) Datos del…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Actualiza nombres de condiciones y propiedades en entornos CD. Args new_value…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Actualiza recursivamente el valor del tipo de entorno. Args element_data…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Actualiza un pipeline aplicando el patrón habilitar - renombrar -…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[Asigna la información de los pipelines de CI para los repositorios activos.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[Asigna un valor nuevo dentro de una estructura de datos anidada. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Comparte el servicio a través de la API de Azure DevOps. Args svc_data (List)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[Construye un array con el nombre actual del svc y el nuevo nombre formateado.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[Convierte un nombre de servicio en formato PascalCase. Args svc_name (str) El…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[Convierte una cadena de claves yo índices a una lista de recorrido. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Convierte una cadena de datos en formato de objeto a una lista JSON. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Corrige el estado de un reporte de build en Azure DevOps.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_reportbuild_status.py
+- [[Crea y publica un archivo JSON en el repositorio. Args json_data (list) Datos…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Define la información de los repositorios para su posterior uso.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[Desactiva un repositorio en la plataforma mediante una llamada a la API. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Descarga los scripts de CMDB si aún no se han descargado.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Deshabilita repositorios cuya fecha de restauración temporal expiró. Returns…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Determina nombre y estado de un pipeline CD según su sufijo de ambiente. El…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Determina y actualiza el estado del repositorio en función del nuevo nombre…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Ejecuta la conversión de un pipeline clásico a YAML. Args pipe (dict) Datos…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Ejecuta la validación completa de estándares para un repositorio dado. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_prohibits_task.py
+- [[El script permite evaluar los estandares establecidos por DevOps al momento de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_prohibits_task.py
+- [[Elimina el diccionario que tenga el nombre especificado.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Elimina el sufijo _OBS de un nombre. Args name (str) Nombre original del…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Este script nos permite listar los SVC existentes dentro de la organizacion y…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/svc_list.py
+- [[Este script permite listar los repositorios]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_repositories.py
+- [[Evalúa los pipelines de CI y modifica las definitions. Args libs_id (set)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[Evalúa si el pipeline requiere cambios en las libraries y actualiza la…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[Evalúa si las libraries están en el pipeline activo. Args libs_id (set)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[Filtra pipelines CD desde el caché pre-cargado, emparejando con los CI. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Filtra pipelines CI desde el caché pre-cargado. Args exclusions (list  None)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Funcion principal que permite extraer la información de un usuario específico…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/get_usergroups_information.py
+- [[Funcion que permite retornar la url global de la organizacion y proyecto. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Función principal para actualizar los datos en la CMDB.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[Función que actualiza el estado del repositorio en la CMDB]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Genera el nuevo nombre del elemento a actualizar en Azure DevOps, considerando…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[Imprime los resultados de pipelines procesados y con errores.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[Indica si la acción actual es restaurar (eliminar de wiki de obsoletos).…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Lista los teams existentes dentro de la organización. Returns set Conjunto de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Maneja el caso donde no se encontraron pipelines CI YAML. Intenta buscar sin…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Modifica los pipelines CICD existentes. Args action (str) Acción a aplicar,…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[Módulo que contiene las clases compartidas entre diferentes scripts. Este…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/shared_classes.py
+- [[Obtenie el ID de un repositorio a partir de su nombre. Args repo_name str…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Obtiene el ID del grupo de variables desde la API de Azure DevOps. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Obtiene el nombre y ID del pipeline convertido desde los logs de un build.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Obtiene el propietario de una rama específica. Args pat (str) Personal Access…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Obtiene el valor de un parámetro específico para un elemento en Azure DevOps.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Obtiene la fecha y hora actual en formato UTC con el siguiente formato YYYY-…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/change_svc_auth_type.py
+- [[Obtiene la informacion de los grupos a los cuales pertenece el usuario que se…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/get_usergroups_information.py
+- [[Obtiene la información de los repositorios desde Azure DevOps.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[Obtiene la información de los sprints futuros y actual. Args pat str…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Obtiene la lista de pipelines no procesados. Args pipes_ci_data (list) Lista…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[Obtiene las claves de los proyectos en SonarQube para luego actualizar la…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Obtiene los IDs de las libraries especificadas en la variable de entorno. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[Obtiene los datos de los pipelines CI y CD desde Azure DevOps.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/standards_eval.py
+- [[Obtiene un nuevo nombre para un servicio, modificando su formato. La función…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[Orquesta la actualización del repositorio renombrado, pipelines CICD, CMDB y…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Permite actualizar el elemento por mediol API AZ DevOps]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/change_svc_auth_type.py
+- [[Permite crear la data que se agregara al reporte final. Args data_eval (list)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Permite definir los diferentes endpoints a consultar con el api response. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Permite evaluar los tipos de reviewers que existen dentro del PR]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/reviewer_type.py
+- [[Permite listar los pipelines CI y separa los tipos clasicos y yml]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_pipelines.py
+- [[Permite modificar el tipo de autentication del SVC de un ServicePrincipal a…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/change_svc_auth_type.py
+- [[Permite quitar caracteres especiales.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Permite revertir de WorkloadIdentityFederation a ServicePrincipal y viceversa]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/change_svc_auth_type.py
+- [[Permite solventar el incumplimiento de los estandares detectados por medio del…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[Permite validar los parametros de entrada. Args azure_type (str) Tipo de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Permite validar los parámetros de entrada. Args data_eval (List) Lista de los…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[Permite validar si los reviewers en el PR son de tipo LT o Desarrolladores,…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/reviewer_type.py
+- [[Pre-carga todos los detalles de pipelines CICD una única vez.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Prepara los datos para actualización de CMDB según la acción actual.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Presenta de forma visual los resultados obtenidos para el usario que se está…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/get_usergroups_information.py
+- [[Procesa la activación o desactivación de repositorios asociados a pipelines con…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[Procesa los datos de los pipelines y los guarda en un archivo temporal. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Procesa un pipeline CI clásico, intentando convertirlo a YAML si es necesario.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Procesa un pipeline CI de tipo YAML. Args pipe (dict) Datos del pipeline.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Realiza una llamada a la API de Azure DevOps y maneja la respuesta. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Recupera y devuelve una lista de Service Connections en Azure DevOps. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/svc_list.py
+- [[Reemplaza la información de los repositorios en Azure DevOps. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[Renombra el repositorio según la acción actual.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Restablece repositorios marcados como OBS de forma temporal o permanente. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Revierte TODOS los cambios realizados durante la restauración, recorriendo el…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Script para actualizar la información de los repositorios en CMDB]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[Script para corregir el estado de reporte de build en pipelines de Azure DevOps.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_reportbuild_status.py
+- [[Script para modificar las definitions de pipelines CICD existentes, agregando…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[Script para restaurar repositorios marcados como OBS (obsoletos). Permite…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Valida la existencia del repositorio y del pipeline en Azure DevOps. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Valida que la información de la solicitud sea correcta. Args repo_name (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Valida si el nuevo nombre de repositorio mantiene el mismo código base. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[Valida si un pipeline de tipo CD cumple con los criterios de prefijo y…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/standards_eval.py
+- [[Verifica que los reviewers cumplan las politicas de aprobacion segun el tipo de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/reviewer_type.py
+- [[Verifica si el repositorio contiene la rama exacta indicada.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Verifica si un usuario existe en un equipo específico. Args pat (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[actualizar_cmdb()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/decomiso_repositorios/main.py
+- [[actualizar_sonarqube()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/decomiso_repositorios/main.py
+- [[api_response()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[apply_pascal_case()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[assign_cd_to_repo()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[assign_ci_to_repo()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[build_new_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[change_svc_auth_type.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/change_svc_auth_type.py
+- [[convert_authentication_type()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/change_svc_auth_type.py
+- [[convert_classic_to_yml()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[corregir_reportbuild_status()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_reportbuild_status.py
+- [[create_file_data()_1]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[create_publish_json_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[define_repositories_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[delete_not_founded_element()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[disabled_obs_repository()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[download_cmdb_scripts()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[enabled_disabled_repo()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[eval_new_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[evaluate_cd_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[evaluate_ci_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[evaluate_library_in_pipeline()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[evaluate_pipes_library_changes()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[fix_reportbuild_status.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_reportbuild_status.py
+- [[fix_standards_devops.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[generate_json_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[get_az_param_value()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[get_azure_pipes_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_prohibits_task.py
+- [[get_azure_pipes_data()_1]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/standards_eval.py
+- [[get_branch_owner()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[get_cached_cd_pipes()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[get_cached_ci_pipes()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[get_converted_pipe_from_logs()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[get_current_date()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/change_svc_auth_type.py
+- [[get_current_element_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[get_global_url()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[get_group_information()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/get_usergroups_information.py
+- [[get_inf_pipes()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[get_inf_repositories()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[get_key_path()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[get_last_sonarqube_key()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[get_library_ids()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[get_new_element_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[get_project_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[get_repo_state()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[get_repository_id()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[get_reviewers_info()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/reviewer_type.py
+- [[get_sprint_start_end_date()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[get_svc_list()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/svc_list.py
+- [[get_user_information()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/get_usergroups_information.py
+- [[get_usergroups_information.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/get_usergroups_information.py
+- [[getting_new_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[handle_missing_ci_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[has_value_verified()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[is_restoring()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[listar_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_pipelines.py
+- [[listar_pipelines.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_pipelines.py
+- [[listar_prohibits_task.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_prohibits_task.py
+- [[listar_repositories.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_repositories.py
+- [[main()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_repositories.py
+- [[modify_ci_cd_definition.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[modify_definitions()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[object_data_to_list()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[preload_all_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[prepare_cmdb_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[proccess_repositories()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[process_apis()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[process_classic_ci_pipe()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[process_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[process_yaml_ci_pipe()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[recursive_update()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[remove_obs_suffix()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[rename_repository()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[replace_azure_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[repository_has_branch()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[resolve_cd_pipe_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[restore_obs_repositories()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[restore_obs_repositories.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[result_messages()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/modify_ci_cd_definition.py
+- [[retrieve_teams()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[reviewer_type.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/reviewer_type.py
+- [[rollback()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[set_nested_value()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[share_svc()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[share_svc.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[shared_classes.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/shared_classes.py
+- [[show_information()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/get_usergroups_information.py
+- [[svc_list.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/svc_list.py
+- [[unprocessed_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[update_cd_pipeline()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[update_ci_pipeline()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[update_cmdb()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[update_cmdb_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[update_cmdb_data.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[update_cmdb_sonar()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[update_element()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/change_svc_auth_type.py
+- [[update_element()_1]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[update_element_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[update_pipeline_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[update_pipeline_name_state()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[update_pipeline_with_state()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/update_cmdb_data.py
+- [[update_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[update_sonarqube_key()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[update_stages_cd()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[user_exists_in_team()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[validate_parameter_fix()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/fix_standards_devops.py
+- [[validate_parameter_svc()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/share_svc.py
+- [[validate_parameters()_2]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[validate_pipes_cd_eval()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_prohibits_task.py
+- [[validate_pipes_eval()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/standards_eval.py
+- [[validate_repo_and_pipe()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[validate_standards()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/listar_prohibits_task.py
+- [[verify_reviewer_type()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/reviewer_type.py
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Community_1
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 114 edges to [[_COMMUNITY_Community 0]]
+- 81 edges to [[_COMMUNITY_Community 2]]
+- 74 edges to [[_COMMUNITY_Community 9]]
+- 19 edges to [[_COMMUNITY_Community 8]]
+- 14 edges to [[_COMMUNITY_Community 167]]
+- 9 edges to [[_COMMUNITY_Community 85]]
+- 8 edges to [[_COMMUNITY_Community 13]]
+- 7 edges to [[_COMMUNITY_Community 27]]
+- 6 edges to [[_COMMUNITY_Community 127]]
+- 5 edges to [[_COMMUNITY_Community 125]]
+- 5 edges to [[_COMMUNITY_Community 122]]
+- 4 edges to [[_COMMUNITY_Community 113]]
+- 4 edges to [[_COMMUNITY_Community 174]]
+- 3 edges to [[_COMMUNITY_Community 36]]
+- 3 edges to [[_COMMUNITY_Community 140]]
+- 3 edges to [[_COMMUNITY_Community 98]]
+- 3 edges to [[_COMMUNITY_Community 87]]
+- 2 edges to [[_COMMUNITY_Community 181]]
+- 2 edges to [[_COMMUNITY_Community 200]]
+- 2 edges to [[_COMMUNITY_Community 285]]
+- 2 edges to [[_COMMUNITY_Community 215]]
+- 1 edge to [[_COMMUNITY_Community 21]]
+- 1 edge to [[_COMMUNITY_Community 231]]
+- 1 edge to [[_COMMUNITY_Community 260]]
+- 1 edge to [[_COMMUNITY_Community 331]]
+- 1 edge to [[_COMMUNITY_Community 332]]
+- 1 edge to [[_COMMUNITY_Community 337]]
+- 1 edge to [[_COMMUNITY_Community 338]]
+- 1 edge to [[_COMMUNITY_Community 339]]
+- 1 edge to [[_COMMUNITY_Community 341]]
+- 1 edge to [[_COMMUNITY_Community 342]]
+- 1 edge to [[_COMMUNITY_Community 46]]
+- 1 edge to [[_COMMUNITY_Community 20]]
+- 1 edge to [[_COMMUNITY_Community 242]]
+- 1 edge to [[_COMMUNITY_Community 218]]
+- 1 edge to [[_COMMUNITY_Community 259]]
+- 1 edge to [[_COMMUNITY_Community 263]]
+
+## Top bridge nodes
+- [[api_response()]] - degree 149, connects to 19 communities
+- [[restore_obs_repositories.py]] - degree 80, connects to 12 communities
+- [[get_global_url()]] - degree 57, connects to 10 communities
+- [[fix_standards_devops.py]] - degree 48, connects to 6 communities
+- [[shared_classes.py]] - degree 19, connects to 6 communities

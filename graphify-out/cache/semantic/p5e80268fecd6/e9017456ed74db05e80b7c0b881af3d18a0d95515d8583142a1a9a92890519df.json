@@ -1,0 +1,1 @@
+{"nodes": [{"id": "pipelines_decomiso_repositorios", "label": "Decomiso Repositorios Pipeline", "file_type": "code", "source_file": "BA/DevOps/NU1098018_ReposUtils_DevOps/pipelines/decomiso_repositorios.yml", "rationale": "Automates the decommissioning process for repositories and branches, integrating with SonarQube and CMDB."}], "edges": [], "hyperedges": []}

@@ -1,0 +1,1 @@
+{"nodes": [{"id": "monitoreo_000wm_grafana_monitoring_stack_docker_compose", "label": "Monitoring Stack Docker Compose", "file_type": "code", "source_file": "Monitoreo/000WM_GRAFANA/monitoring-stack/docker-compose.yml", "rationale": "Defines the containerized services for Grafana, Prometheus, Loki, Tempo, etc."}], "edges": [], "hyperedges": []}

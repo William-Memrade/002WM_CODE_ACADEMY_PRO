@@ -1,0 +1,20 @@
+---
+source_file: "Trading/001WM_STRATEGY_BOT/app/execution/risk_manager.py"
+type: "code"
+community: "Community 29"
+location: "L425"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_29
+---
+
+# ._matching_open_positions()
+
+## Connections
+- [[dot-_position_type_for_direction()]] - `calls` [EXTRACTED]
+- [[dot-validate()_3]] - `calls` [EXTRACTED]
+- [[Any_30]] - `references` [EXTRACTED]
+- [[RiskManager]] - `method` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_29

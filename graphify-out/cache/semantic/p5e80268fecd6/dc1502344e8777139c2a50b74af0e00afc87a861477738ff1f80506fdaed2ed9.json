@@ -1,0 +1,1 @@
+{"nodes": [{"id": "pipelines_agents_checks_azure_pipelines", "label": "Agent Connectivity Check Pipeline", "file_type": "code", "source_file": "BA/DevOps/NU1098018_ReposUtils_DevOps/pipelines/AgentsChecks/azure-pipelines.yaml", "rationale": "Tests network connectivity from Azure DevOps agents to specific IPs/Hosts and ports."}], "edges": [], "hyperedges": []}

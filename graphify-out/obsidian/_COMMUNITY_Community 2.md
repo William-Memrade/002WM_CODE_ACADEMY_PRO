@@ -1,0 +1,241 @@
+---
+type: community
+cohesion: 0.02
+members: 202
+---
+
+# Community 2
+
+**Cohesion:** 0.02 - loosely connected
+**Members:** 202 nodes
+
+## Members
+- [[dot-__init__()_49]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[dot-__init__()_50]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Actualiza el trabajo con la sección pool. Args job (dict) El trabajo a…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Agrega la sección `pool` condicional al inicio del YAML. Args yml_data (Any)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Agrega la sección `variables` condicional al inicio del YAML. Args new_data…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Agrega secciones de grupos de variables al diccionario YAML. Args yml_data…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Agrega una nueva variable a una condición específica dentro de una estructura…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Agrega una ruta al campo 'exclude' si no está presente, a menos que ya exista…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Agrupa las pipelines por repositorio y filtra las pipelines que contienen los…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Aplica cambios directos sobre la rama base sin crear PR.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Busca recursivamente un valor dentro de una estructura anidada. Args pipe_data…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Carga el contenido de un template local.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Carga y valida la configuracion de estructura.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Clase que mantiene el estado de las librerías.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Construye el nombre de la rama para apply.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Construye el resumen de resultados.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Construye la data YAML para el commit de restauración. Args requested_by_user…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Construye la estructura de archivos segun la accion solicitada.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Construye un bloque de trigger por defecto respetando la indentación base.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Convierte una lista separada por comas en un arreglo de repositorios.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Crea el directorio de reportes si no existe.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Crea la sección de pool condicional para el YAML. Returns list Lista con las…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Crea los PRs para los repositorios pendientes.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Crea un archivo YML en el repositorio correspondiente para cada pipeline…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Crea un commit en el repositorio con los archivos YAML actualizados. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Crea un pipeline en Azure DevOps utilizando una configuración YAML. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Determina si un pipeline debe ser omitido según su tipo o configuración. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Ejecuta apply sobre los repositorios pendientes.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Ejecuta cambios directos sobre la rama base.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Ejecuta el analisis sin crear PRs ni modificar repositorios.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Ejecuta un pipeline en segundo plano para la rama especifica. Parameters…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/execute_secondary_pipeline.py
+- [[Elimina el apartado `resources` y la línea `persistCredentials true`. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Elimina los pasos dentro de `steps` que contienen `enabled false`. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Elimina una rama de un repositorio. Args data (dict) Objeto de la rama…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Escribe un reporte CSV.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Escribe un reporte JSON.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Este script permite leer un pipeline clasico y transformarlos a su version yml…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Evalua los repositorios segun el alcance solicitado.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Evalua un repositorio y retorna su categoria junto al detalle.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Extrae el codigo de proyecto de 4 digitos a partir del nombre del repo.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Filtra repositorios segun el alcance definido.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Funcion que permite normalizar un valor. Args valor Valor a normalizar.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Genera los reportes de salida.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Genera un Pull Request (PR) para convertir un pipeline clásico a YAML. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Homologa múltiples pipelines especiales agrupando sus archivos YAML por ruta y…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Imprime un resumen amigable para el log del pipeline.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Indica si el repositorio esta deshabilitado.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Inserta un trigger por defecto - Después del bloque parameters, si existe. -…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Lee el archivo YAML y obtiene un diccionario con ID, Name y RepositoryID,…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[LibraryState]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Limpia los valores de las ramas eliminando el prefijo 'refsheads'. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Marca un PR como abandonado. Args data (dict) Objeto del PR específico. repo…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Muestra el resultado del procesamiento de los repositorios y los PRs. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Muestra los resultados de los repositorios no encontrados, los PRs generados y…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Normaliza la section del trigger de un archivo YAML Args trigger_section…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Obtiene el archivo YAML y las variables asociadas al pipeline especificado.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Obtiene información del repositorio para diferentes ramas. Args pat (str)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Obtiene los argumentos del script.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Obtiene todos los repositorios del proyecto.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Obtiene una sesión de requests con configuración de reintentos (reutilizable).]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[Permite agregar o editar datos en el segmento especificado según la acción.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Permite editar multiples archivos Args pat (str) Token de acceso personal…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Permite ejecutar un pipeline secundario, desde la ejecucion principal]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/execute_secondary_pipeline.py
+- [[Permite extraer un segmento especifico de un file_content Args yaml_content…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Permite extrare el yml original del pipeline tipo clasico Args pipe_id (int)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Permite hacer Rollback, eliminando las ramas creadas y abandonando los PRs…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Permite recuperar un fragmento exacto de un file_content Args file_content…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Prepara y crea un nuevo pipeline observador (OBS) a partir de uno existente,…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Procesa el contenido YAML, limpiando pasos deshabilitados, ajustando triggers,…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Procesa el valor del trigger y lo normaliza en el formato esperado. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Procesa la conversión de pipelines clásicos a YAML, incluyendo casos…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Procesa la lista de pipelines a convertir, junto con el repositorio de origen,…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Procesa los datos de las pipelines, agrupándolas por repositorio. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Procesa los datos de los pipelines de un repositorio y obtiene el contenido de…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Procesa los datos para obtener el filtro y el nuevo valor. Args - data (dict)…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Procesa los datos para obtener el filtro, el valor a agregar y la posición…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Procesa los valores de un trigger proporcionado. Actualiza el diccionario con…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Procesa múltiples archivos para una rama específica de un repositorio. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Procesa pipelines definidos por múltiples rutas (MR), generando sus archivos…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Procesa un archivo para una rama específica de un repositorio. Args yaml_route…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Punto de entrada principal.]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Reemplaza data en los YAMLs y envía los PRs correspondientes. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Reemplaza la definición de release de un pipeline si es distinta. Args…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Registra fallos de apply, reclasificando los casos de repositorio inexistente o…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Retorna el sufijo excluido si aplica. Ademas del caso clasico donde el…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Retorna la rama sobre la que se realizará el commit. Returns str Nombre de la…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[Script para analizar de forma masiva repositorios de Azure DevOps y determinar…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[Script que germite generar un Pull Request a una rama en especifico]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[Script que permite editar todos los archivos yml de forma masiva]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Valida el sufijo del pipeline para omitir en caso de que su estado no sea…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[ValidateChanges]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[Verifica el estado de un pipeline en ejecución. Parameters pipe_id (str) ID…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/execute_secondary_pipeline.py
+- [[Verifica si existe una estructura condicional asociada a una palabra clave.…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[Verifica si un archivo existe en una rama especifica del repositorio. Retorna…]] - rationale - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[add_comment()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[add_conditional_pool()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[add_conditional_vars()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[add_reviewer()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[add_tags()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[add_variable_groups()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[add_vars_to_conditional_var()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[add_work_item()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[apply_changes()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[apply_direct_to_master()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[build_branch_name()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[build_default_trigger_block()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[build_file_payloads_for_action()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[build_yml_commit_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[check_existing_pr()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[check_pipe_status()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/execute_secondary_pipeline.py
+- [[clean_trigger()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[contains_filter_value()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[convert_classic_to_yaml.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[create_archive_structure_massive.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[create_commit()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[create_pipeline()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[create_pool_section()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[create_pull_request()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[create_reports()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[create_yml_on_repository()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[delete_branch()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[edit_files()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[edit_yml_files.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[ensure_reports_dir()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[evaluate_repositories()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[evaluate_repository()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[execute_pipeline()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/execute_secondary_pipeline.py
+- [[execute_secondary_pipeline.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/execute_secondary_pipeline.py
+- [[extract_filter_path_section()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[extract_project_code()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[extract_trigger_section()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[fetch_repository_files_info_for_branch()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[fetch_repository_info_for_branch()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[filter_disabled_steps()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[filter_repositories_by_scope()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[find_mr_repository()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[generate_pr()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[generate_pull_request.py]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[get_all_repositories()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[get_changes_files()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[get_commit_branch()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/restore_obs_repositories.py
+- [[get_commit_id()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[get_commit_id_per_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[get_file_and_vars()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[get_pipe_vars_and_yml_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[get_pr_url()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[get_reviewer_id()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[get_session()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[group_repo_pipes()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[has_excluded_suffix()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[homologate_special_pipes()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[insert_default_trigger_section()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[is_repo_disabled()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[load_structure_config()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[load_template_content()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[main()_22]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[normalizar_valor()_1]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py
+- [[normalize_trigger_section()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[parse_args()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[parse_target_repositories()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[prepare_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[print_results()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[process_add_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_csv_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_delete_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_edit_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_exclude_trigger_path()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_file_branch()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_mr_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[process_multiply_file_branch()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_pipelines()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[process_pipelines_data()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_trigger_value_dict()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_trigger_value_list()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_trigger_value_str()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[process_yml_content()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[pull_request()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[register_failed_update()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[remove_non_functional_code()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[replace_and_create_pr()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[replace_release_definition()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[repository_file_exists()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[rollback_abandoned_pr()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[rollback_delete_branches()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[rollback_process()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[run_apply()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[run_apply_direct_master()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[run_dry_run()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[set_auto_complete()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[should_commit_changes()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[should_skip_based_on_type()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[show_pipes_repos_result()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[show_process_result()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[summarize_results()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[update_content_file()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[update_filter_section()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/edit_yml_files.py
+- [[update_job_with_pool()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[update_repo_files()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/generate_pull_request.py
+- [[validate_subfix_pipeline()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[verify_conditional_structure()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/convert_classic_to_yaml.py
+- [[write_csv_report()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+- [[write_json_report()]] - code - BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/create_archive_structure_massive.py
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Community_2
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 81 edges to [[_COMMUNITY_Community 1]]
+- 54 edges to [[_COMMUNITY_Community 0]]
+- 39 edges to [[_COMMUNITY_Community 9]]
+- 17 edges to [[_COMMUNITY_Community 8]]
+- 16 edges to [[_COMMUNITY_Community 44]]
+- 5 edges to [[_COMMUNITY_Community 38]]
+- 2 edges to [[_COMMUNITY_Community 181]]
+- 1 edge to [[_COMMUNITY_Community 260]]
+- 1 edge to [[_COMMUNITY_Community 258]]
+- 1 edge to [[_COMMUNITY_Community 48]]
+- 1 edge to [[_COMMUNITY_Community 167]]
+
+## Top bridge nodes
+- [[generate_pull_request.py]] - degree 38, connects to 8 communities
+- [[pull_request()]] - degree 20, connects to 5 communities
+- [[edit_yml_files.py]] - degree 55, connects to 4 communities
+- [[convert_classic_to_yaml.py]] - degree 49, connects to 4 communities
+- [[create_archive_structure_massive.py]] - degree 42, connects to 4 communities

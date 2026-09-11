@@ -1,0 +1,18 @@
+---
+source_file: "BA/DevOps/NU1098018_ReposUtils_DevOps/scripts/utils_functions.py"
+type: "rationale"
+community: "Community 20"
+location: "L268"
+tags:
+  - graphify/rationale
+  - graphify/EXTRACTED
+  - community/Community_20
+---
+
+# Función que retorna un mensaje de sección a nivel visual del pipeline. Args:…
+
+## Connections
+- [[section_message()]] - `rationale_for` [EXTRACTED]
+- [[section_message()_1]] - `rationale_for` [EXTRACTED]
+
+#graphify/rationale #graphify/EXTRACTED #community/Community_20
