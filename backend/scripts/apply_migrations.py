@@ -17,6 +17,14 @@ Uso (dentro del contenedor backend, con DATABASE_URL seteada):
                                                   # aplicadas SIN ejecutarlas
                                                   # (BD preexistente)
     python scripts/apply_migrations.py --seed     # aplica pendientes + datos demo
+    python scripts/apply_migrations.py --seed-if-empty
+                                                  # igual, pero siembra solo si
+                                                  # public.users está vacía
+                                                  # (lo usa el arranque del
+                                                  # contenedor, ver bootstrap_db.py)
+
+Todo el cuerpo corre bajo un pg_advisory_lock: dos procesos que migren a la vez
+se serializan en vez de competir por el mismo DDL.
 
 `--baseline` es para una base que ya se inicializó con docker-entrypoint-initdb.d
 (volumen de postgres creado por el compose viejo): el SQL ya corrió, pero no hay
@@ -38,7 +46,16 @@ from urllib.parse import parse_qs, unquote, urlsplit
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 TRACKING_TABLE = "schema_migrations"
+
+# Clave del lock cooperativo (pg_advisory_lock). Tiene que ser la MISMA en todos
+# los procesos que migran esta base: el servicio `migrate` del compose, el
+# bootstrap de arranque del contenedor y un eventual job de CI. El valor es
+# arbitrario; solo importa que sea estable.
+ADVISORY_LOCK_KEY = 0x4341_4341_4441_5441  # "CACADATA" en hex
+
 EXPLICIT_TX_RE = re.compile(r"^\s*(BEGIN|START\s+TRANSACTION)\b", re.IGNORECASE | re.MULTILINE)
+
+SEED_SCRIPT = "scripts/seed_data.py"
 
 
 def resolve_migrations_dir() -> Path:
@@ -108,6 +125,19 @@ def checksum(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def run_seed() -> int:
+    """Ejecuta scripts/seed_data.py (idempotente). Devuelve su código de salida."""
+    print("\n→ Ejecutando seed de datos demo (scripts/seed_data.py)…", flush=True)
+    result = subprocess.run(
+        [sys.executable, SEED_SCRIPT],
+        cwd=BACKEND_DIR,
+        env=os.environ.copy(),
+    )
+    if result.returncode != 0:
+        print("ERROR: el seed falló.", file=sys.stderr)
+    return result.returncode
+
+
 # ── Migraciones ───────────────────────────────────────────────────────────────
 
 async def apply(args: argparse.Namespace) -> int:
@@ -119,6 +149,10 @@ async def apply(args: argparse.Namespace) -> int:
 
     conn = await asyncpg.connect(**connect_kwargs_from_env())
     try:
+        # Lock por sesión ANTES de leer el estado: si dos procesos arrancan a la
+        # vez (deploy solapado, CI + contenedor) se serializan en vez de pelearse
+        # por el mismo DDL. Se libera solo al cerrar la conexión.
+        await conn.execute("SELECT pg_advisory_lock($1)", ADVISORY_LOCK_KEY)
         created = not await conn.fetchval(
             "SELECT to_regclass($1) IS NOT NULL", f"public.{TRACKING_TABLE}"
         )
@@ -199,16 +233,20 @@ async def apply(args: argparse.Namespace) -> int:
                 if current != applied[f.name]:
                     print(f"  AVISO: {f.name} cambió después de aplicarse (checksum distinto)")
 
-        if args.seed:
-            print("\n→ Ejecutando seed de datos demo (scripts/seed_data.py)…", flush=True)
-            result = subprocess.run(
-                [sys.executable, "scripts/seed_data.py"],
-                cwd=BACKEND_DIR,
-                env=os.environ.copy(),
-            )
-            if result.returncode != 0:
-                print("ERROR: el seed falló.", file=sys.stderr)
-                return result.returncode
+        seed_requested = args.seed
+        if args.seed_if_empty:
+            users_table = await conn.fetchval("SELECT to_regclass('public.users') IS NOT NULL")
+            users = await conn.fetchval("SELECT count(*) FROM public.users") if users_table else 0
+            if users:
+                print(f"\nSeed omitido: public.users ya tiene {users} fila(s).")
+            else:
+                print("\npublic.users está vacía → se siembran los datos demo.")
+                seed_requested = True
+
+        if seed_requested:
+            code = run_seed()
+            if code != 0:
+                return code
 
         print("\nMigraciones al día.")
         return 0
@@ -224,6 +262,12 @@ def main() -> int:
     parser.add_argument("--status", action="store_true", help="solo mostrar el estado de cada migración")
     parser.add_argument("--baseline", action="store_true", help="marcar las pendientes como aplicadas sin ejecutarlas")
     parser.add_argument("--seed", action="store_true", help="ejecutar también scripts/seed_data.py")
+    parser.add_argument(
+        "--seed-if-empty",
+        action="store_true",
+        help="sembrar solo si public.users está vacía (para el arranque del contenedor)",
+    )
+
     args = parser.parse_args()
     return asyncio.run(apply(args))
 

@@ -33,6 +33,14 @@ services:
         sync: false
       - key: DATABASE_RLS_URL
         sync: false                 # por ahora = DATABASE_URL
+      # Base al día sin pasos manuales. En el plan free Render no tiene
+      # pre-deploy command (es de servicios de pago) ni cron jobs, así que el
+      # contenedor del API aplica las migraciones al arrancar y siembra los datos
+      # demo solo si public.users está vacía. Es idempotente y corre bajo un
+      # pg_advisory_lock, así que un restart o un cold start no rompen nada.
+      # Poner "migrate" si NO querés que siembre nunca automáticamente.
+      - key: BOOTSTRAP_DB
+        value: migrate+seed
       - key: CORS_ORIGINS
         value: https://codeacademy-web.onrender.com
       - key: SUPABASE_URL
@@ -74,9 +82,9 @@ services:
     envVars:
       # OJO: se hornea en BUILD time (rewrites de Next). Render pasa las env vars
       # del servicio Docker como build args, por eso funciona aquí.
-      # Si cambiás el nombre del servicio de la API, hay que redeployar el front.
+      # El sufijo (-a2fi) lo asigna Render al servicio: si lo recreás, cambia.
       - key: API_PROXY_TARGET
-        value: https://codeacademy-api.onrender.com
+        value: https://codeacademy-api-a2fi.onrender.com
       - key: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
         sync: false
 

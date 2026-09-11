@@ -38,8 +38,18 @@ RUN mkdir -p /app/uploads/proofs /app/uploads/qr
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=25s --retries=3 \
+# start-period generoso: en el primer arranque contra una base vacía el bootstrap
+# (migraciones + seed) puede tardar ~30 s antes de que uvicorn abra el puerto.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -fsS "http://127.0.0.1:${PORT:-8000}/health" || exit 1
 
 # Sin --reload (era de desarrollo). PORT lo inyecta el proveedor; en local cae a 8000.
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips '*'"]
+#
+# Antes de levantar uvicorn se corre el bootstrap de la base (migraciones y, si
+# public.users está vacía, el seed). En local y en el compose el default
+# BOOTSTRAP_DB=off lo deja inerte, porque ahí el que migra es el servicio
+# `migrate`. En Render (plan free: sin pre-deploy command ni cron jobs) se activa
+# con la env var BOOTSTRAP_DB=migrate+seed. Si el bootstrap falla, el contenedor
+# no arranca: el deploy queda en rojo en vez de servir un API con la base a medias.
+CMD ["sh", "-c", "python scripts/bootstrap_db.py && exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips '*'"]
+

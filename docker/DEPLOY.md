@@ -16,7 +16,8 @@ Atajo: `wsl -e bash -lc "cd /mnt/c/Users/guill/Documents/Personal_Projects/Progr
 | `Dockerfile.frontend` | Imagen del frontend Next.js multi-stage (`next build` + `next start`). **Contexto = `frontend/`**. |
 | `render.yaml` | Blueprint de Render: 2 web services + Key Value (worker comentado). |
 | `../.dockerignore`, `../frontend/.dockerignore` | Evitan que `venv/`, `node_modules/`, `.env` y `uploads/` entren en las imágenes. |
-| `../backend/scripts/apply_migrations.py` | Migrador idempotente (tabla de control `schema_migrations`). |
+| `../backend/scripts/apply_migrations.py` | Migrador idempotente (tabla de control `schema_migrations`). Corre bajo un `pg_advisory_lock`, así que dos procesos a la vez se serializan. |
+| `../backend/scripts/bootstrap_db.py` | Lo que el contenedor del API corre al arrancar: decide si migrar y/o sembrar según `BOOTSTRAP_DB` (§3.3). |
 | `../backend/scripts/check_schema_drift.py` | Compara los modelos con la base real. Detecta columnas/tablas que el ORM usa y las migraciones no crean. |
 | `../backend/scripts/smoke_api.py` | Recorre todos los GET de la API y reporta errores 5xx. Sirve igual contra local o contra Render. |
 
@@ -114,6 +115,11 @@ postgresql+asyncpg://postgres.<ref>:<PASSWORD>@aws-0-<region>.pooler.supabase.co
    `service_role key` (Settings → API). La service_role key va **solo** en el backend.
 
 ### 3.2 Aplicar las migraciones a Supabase
+
+> Camino manual, para la primera puesta en marcha o para forzar el esquema a mano. En
+> Render esto ya no hace falta en cada deploy: con `BOOTSTRAP_DB` (§3.3) el contenedor
+> del API aplica las pendientes al arrancar.
+
 Desde WSL, con la imagen ya construida:
 
 ```bash
@@ -136,7 +142,51 @@ DATABASE_URL='...' docker compose run --rm --no-deps -e DATABASE_URL="$DATABASE_
 > correr `check_schema_drift.py`: lo más probable es que falten justo las cosas de la
 > tabla de arriba.
 
-### 3.3 Render
+### 3.3 Base al día en cada deploy (`BOOTSTRAP_DB`)
+
+En el plan free Render **no** tiene pre-deploy command (es de servicios de pago) ni cron
+jobs, así que la alternativa es que el propio contenedor del API ponga la base al día al
+arrancar. Eso hace `backend/scripts/bootstrap_db.py`, que ahora es el primer paso del
+`CMD` del `Dockerfile.backend`:
+
+```
+python scripts/bootstrap_db.py && exec uvicorn main:app ...
+```
+
+Se controla con una env var, `BOOTSTRAP_DB`:
+
+| Valor | Qué hace |
+|---|---|
+| `off` (default) | Nada. Es lo correcto en local: ahí migra el servicio `migrate` del compose, que corre antes que `backend` y `worker`. |
+| `migrate` | Aplica las migraciones pendientes. |
+| `seed` | Siembra los datos demo solo si `public.users` está vacía. |
+| `migrate+seed` | Las dos cosas. **Es el valor que va en el servicio API de Render.** |
+
+Por qué es seguro con arranques y cold starts repetidos (Render duerme el servicio a los
+15 min y lo vuelve a levantar): `apply_migrations.py` es idempotente y lleva la tabla de
+control `schema_migrations`, y encima todo el cuerpo corre bajo un `pg_advisory_lock`, así
+que dos instancias que arranquen a la vez (deploy solapado, CI + contenedor) se
+serializan. El seed solo se ejecuta con la tabla de usuarios vacía.
+
+Si el bootstrap falla, el contenedor **no arranca**: el deploy queda en rojo y la versión
+anterior sigue sirviendo. Es el comportamiento que se quiere (mejor un deploy fallido y
+visible que un API en pie con la base a medias).
+
+En local se puede probar el mismo camino sin docker:
+
+```bash
+cd backend
+BOOTSTRAP_DB=migrate+seed DATABASE_URL='postgresql+asyncpg://...' \
+  python scripts/bootstrap_db.py
+```
+
+> La alternativa "de verdad" en producción es el pre-deploy command de Render
+> (`python scripts/apply_migrations.py --seed-if-empty` en Settings → Pre-Deploy Command),
+> que corre una sola vez por deploy, fuera del contenedor y antes de que arranque. Queda
+> disponible el día que los servicios pasen a un plan pago; el script ya está preparado
+> para los dos caminos.
+
+### 3.4 Render
 Dos web services, ambos con runtime **Docker** (nada que construir a mano: Render
 construye las imágenes desde el repo).
 
@@ -169,13 +219,16 @@ push**: Render lee el repo remoto, no el disco local.
 Variables que hay que cargar en el dashboard (nunca en git): `DATABASE_URL`,
 `DATABASE_RLS_URL`, `SUPABASE_URL`, `SUPABASE_KEY` y las de SMTP si usás correo real.
 `JWT_SECRET` lo genera Render. Para la fase de pruebas, `DATABASE_RLS_URL` = el mismo
-valor que `DATABASE_URL` (ver §5.4).
+valor que `DATABASE_URL` (ver §5.4). Si creaste los servicios a mano (no por Blueprint),
+cargá también `BOOTSTRAP_DB=migrate+seed` en el API para que la base se ponga al día sola
+(ver §3.3). Ojo con `DATABASE_URL`: la del `.env` local apunta a `localhost` y desde Render
+eso no existe; tiene que ser la del pooler de Supabase y con el `<region>` reemplazado.
 
 Verificación después del deploy:
 
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" https://<api>.onrender.com/health
-python scripts/smoke_api.py --base-url https://<api>.onrender.com
+python backend/scripts/smoke_api.py --base-url https://<api>.onrender.com
 ```
 
 ---
