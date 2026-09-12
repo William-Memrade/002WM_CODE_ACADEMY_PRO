@@ -2,6 +2,28 @@
 
 ## 1. Flujo de Inscripción + Pago Manual
 
+> **Implementación actual (2026-09-11).** El diagrama describe el diseño previsto; lo que
+> hace el código hoy es:
+>
+> 1. El alumno **no** publica `/enrollments`: sube el comprobante con
+>    `POST /payments/submit-proof` (curso + plan + archivo) y nace un `payments` en
+>    `pending`/`pending_review`. Todavía **no hay inscripción**, así que el curso no
+>    aparece en «Mis Cursos»: sólo el pago, como *pendiente de confirmación*.
+> 2. Al aprobar (`POST /payments/{id}/approve`) se crea la inscripción **siempre**:
+>    - con clase y cupo → `enrollments.status = active` y `course_class_id` asignado;
+>    - sin clase con cupo → `enrollments.status = payment_approved` con `course_class_id`
+>      NULL y el pago en `approved_pending_class`. El alumno ya ve el curso con el aviso
+>      *en espera de asignación de clase*.
+> 3. `POST /payments/{id}/assign-class` **reutiliza esa misma fila** (la activa) en vez de
+>    crear otra: `uq_enrollments (student_id, course_id)` admite una sola por alumno y curso.
+> 4. Rechazar (`POST /payments/{id}/reject`) sólo marca `payment_rejected` la inscripción
+>    **sin clase**; una inscripción `active` (el alumno ya está cursando) no se degrada al
+>    rechazar un pago nuevo del mismo curso.
+>
+> Recordatorio: la ficha del curso sólo es visible para el alumno si el curso está
+> `is_active` (política `courses_select`), así que un curso en borrador con pago aprobado
+> todavía no se puede abrir aunque la inscripción exista.
+
 ```mermaid
 sequenceDiagram
     participant A as Alumno
@@ -52,9 +74,12 @@ sequenceDiagram
 
 ### Estados de Inscripción
 ```
-pending_payment → payment_pending_review → payment_approved → active → completed
-                                        → payment_rejected (puede reintentar)
-                                                            → cancelled
+(subir comprobante) → payment_pending_review
+      ↓ aprobar sin clase con cupo        ↓ aprobar con clase y cupo
+   payment_approved ──assign-class──→ active → completed
+                                        ↘ cancelled (desde activo o en espera)
+      ↓ rechazar (sólo si no hay clase)
+   payment_rejected ──nuevo comprobante──→ payment_pending_review
 ```
 
 ---

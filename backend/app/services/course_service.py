@@ -233,6 +233,34 @@ class CourseService:
         """Borra un módulo; sus lecciones caen por FK (ON DELETE CASCADE)."""
         return await self.module_repo.delete(module_id)
 
+    async def reorder_modules(self, course_id: UUID, ordered_ids: list[UUID]) -> list[dict]:
+        """
+        Reordena el temario de un curso según la lista de ids recibida.
+
+        `sort_order` es *orden*, no identidad: se reescribe 0..n-1 en un solo paso, así que
+        insertar un módulo al principio no obliga a renumerar todo a mano. Los módulos que
+        no vengan en la lista se colocan detrás, en su orden actual (nada se pierde), y un
+        id de otro curso se rechaza en vez de reordenar a ciegas.
+        """
+        modules = await self.module_repo.get_by_course(course_id)
+        by_id = {str(m.id): m for m in modules}
+        unknown = [str(i) for i in ordered_ids if str(i) not in by_id]
+        if unknown:
+            raise ValueError(f"Modules not in this course: {', '.join(unknown)}")
+
+        position = 0
+        for module_id in ordered_ids:
+            module = by_id.pop(str(module_id))
+            module.sort_order = position
+            position += 1
+        for module in modules:
+            if str(module.id) in by_id:
+                module.sort_order = position
+                position += 1
+
+        await self.db.flush()
+        return await self.list_modules(course_id)
+
     async def update_lesson(self, lesson_id: UUID, **fields) -> dict | None:
         """Edita una lección. Devuelve None si no existe (o RLS la esconde)."""
         lesson = await self.lesson_repo.get_by_id(lesson_id)
@@ -253,6 +281,39 @@ class CourseService:
     async def delete_lesson(self, lesson_id: UUID) -> bool:
         """Borra una lección."""
         return await self.lesson_repo.delete(lesson_id)
+
+    async def reorder_lessons(self, module_id: UUID, ordered_ids: list[UUID]) -> list[dict]:
+        """
+        Reordena las lecciones de un módulo (`sort_order` 0..n-1).
+
+        Mismo contrato que `reorder_modules`: la lista manda, lo que no venga va detrás y
+        un id ajeno al módulo se rechaza.
+        """
+        lessons = await self.lesson_repo.get_by_module(module_id)
+        by_id = {str(l.id): l for l in lessons}
+        unknown = [str(i) for i in ordered_ids if str(i) not in by_id]
+        if unknown:
+            raise ValueError(f"Lessons not in this module: {', '.join(unknown)}")
+
+        position = 0
+        for lesson_id in ordered_ids:
+            lesson = by_id.pop(str(lesson_id))
+            lesson.sort_order = position
+            position += 1
+        for lesson in lessons:
+            if str(lesson.id) in by_id:
+                lesson.sort_order = position
+                position += 1
+
+        await self.db.flush()
+        course_id = await self.get_module_course_id(module_id)
+        if course_id is None:
+            return [
+                self._lesson_to_dict(l, include_content=True)
+                for l in await self.lesson_repo.get_by_module(module_id)
+            ]
+        # Igual que `reorder_modules`: se devuelve el temario completo ya ordenado.
+        return await self.list_modules(course_id)
 
     @staticmethod
     def _apply_fields(obj, fields: dict, *, allowed: set[str], nullable: set[str]) -> None:

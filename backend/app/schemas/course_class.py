@@ -106,6 +106,16 @@ class MeetingLinkUpdateRequest(BaseModel):
     meeting_url: str = Field(..., max_length=500)
 
 
+class RecordingLinkUpdateRequest(BaseModel):
+    """
+    PATCH /course-classes/{class_id}/recording-link request body.
+
+    `recording_url` a None o cadena vacía borra la grabación publicada.
+    """
+    recording_platform: str | None = Field(None, max_length=50)
+    recording_url: str | None = Field(None, max_length=500)
+
+
 class CourseClassCapacityResponse(BaseModel):
     """GET /course-classes/{class_id}/capacity response."""
     course_class_id: UUID
@@ -130,6 +140,9 @@ class CourseClassResponse(BaseModel):
     status: str
     meeting_platform: str | None
     meeting_url: str | None
+    recording_platform: str | None = None
+    recording_url: str | None = None
+    recording_updated_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None
@@ -159,5 +172,6 @@ class CourseClassListItem(BaseModel):
     available_slots: int = 0
     global_max: int = 100
     has_meeting_link: bool = False
+    has_recording: bool = False
 
     model_config = {"from_attributes": True}

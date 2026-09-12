@@ -50,12 +50,18 @@ class EnrollmentService:
             "enrollment_id": str(enrollment.id),
             "course_id": str(enrollment.course_id),
             "course_title": course.title if course else None,
+            "course_slug": course.slug if course else None,
             "course_class_id": str(enrollment.course_class_id) if enrollment.course_class_id else None,
             "course_class_name": course_class.name if course_class else None,
             "progress_percentage": float(cls._as_percent(enrollment.progress_percentage)),
             "completed_at": enrollment.completed_at.isoformat() if enrollment.completed_at else None,
             "status": enrollment.status,
+            "enrolled_at": enrollment.enrolled_at.isoformat() if enrollment.enrolled_at else None,
         }
+        # `cancellation_reason` sólo se expone cuando la inscripción se rechazó o canceló:
+        # en una inscripción viva sería ruido (y así el alumno ve el motivo del rechazo).
+        if enrollment.status in ("payment_rejected", "cancelled"):
+            item["cancellation_reason"] = enrollment.cancellation_reason
         if student is not None:
             item.update(
                 {
@@ -69,7 +75,19 @@ class EnrollmentService:
     # ── Lectura ─────────────────────────────────────────────────────────
 
     async def list_student_progress(self, student_id: UUID) -> list[dict]:
-        """Progreso del propio alumno, una fila por inscripción."""
+        """
+        Vista del alumno sobre sus inscripciones (una fila por alumno y curso).
+
+        El `status` es el del ciclo de vida de la inscripción, que es lo que la UI usa
+        para decidir qué enseñar:
+
+          payment_approved → pagado, esperando que el admin asigne clase
+          active           → clase asignada; los enlaces los da `/students/me/classes`
+          payment_rejected → rechazado, con `cancellation_reason`
+
+        Los enlaces de la clase (en vivo y grabación) no se duplican aquí: los expone
+        `GET /students/me/classes`, que ya filtra por inscripción activa.
+        """
         rows = await self.repo.list_with_course_by_student(student_id)
         return [
             self._to_item(enrollment, course, course_class)

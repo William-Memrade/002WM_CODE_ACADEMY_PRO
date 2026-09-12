@@ -674,8 +674,10 @@ export default function CourseDetailPage() {
           )}
 
           {course.has_available_classes === false && (
-            <div style={{ padding: "12px", borderRadius: "8px", background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", marginBottom: "24px" }}>
-              ⛔ No hay clases con cupos disponibles en este momento.
+            <div style={{ padding: "12px", borderRadius: "8px", background: "#fffbeb", border: "1px solid #fde68a", color: "#92400e", marginBottom: "24px" }}>
+              ⏳ Todavía no hay clases abiertas para este curso. Puedes inscribirte y subir tu
+              comprobante: al confirmarse el pago tu inscripción queda <strong>en espera de
+              asignación de clase</strong> y te avisamos en cuanto haya una.
             </div>
           )}
         </div>

@@ -20,17 +20,29 @@ const EN_TO_CODE: Record<string, string> = {
 };
 
 export default function TeacherClassesPage() {
-  const { data: classes, loading, refresh, updateMeetingLink } = useTeacherClasses();
+  const { data: classes, loading, refresh, updateMeetingLink, updateRecordingLink } = useTeacherClasses();
 
   const [meetingModal, setMeetingModal] = useState<CourseClassItem | null>(null);
   const [meetingPlatform, setMeetingPlatform] = useState("");
   const [meetingUrl, setMeetingUrl] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Grabación de la clase: la publica el docente titular (o administración).
+  const [recordingModal, setRecordingModal] = useState<CourseClassItem | null>(null);
+  const [recordingPlatform, setRecordingPlatform] = useState("");
+  const [recordingUrl, setRecordingUrl] = useState("");
+  const [savingRecording, setSavingRecording] = useState(false);
+
   const openMeeting = (cls: CourseClassItem) => {
     setMeetingModal(cls);
     setMeetingPlatform(cls.meeting_platform || "");
     setMeetingUrl(cls.meeting_url || "");
+  };
+
+  const openRecording = (cls: CourseClassItem) => {
+    setRecordingModal(cls);
+    setRecordingPlatform(cls.recording_platform || "");
+    setRecordingUrl(cls.recording_url || "");
   };
 
   const saveMeeting = async () => {
@@ -43,6 +55,19 @@ export default function TeacherClassesPage() {
       toast.error("Error al guardar enlace");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const saveRecording = async () => {
+    if (!recordingModal) return;
+    setSavingRecording(true);
+    try {
+      await updateRecordingLink(recordingModal.id, recordingPlatform, recordingUrl);
+      setRecordingModal(null);
+    } catch {
+      toast.error("Error al guardar la grabación");
+    } finally {
+      setSavingRecording(false);
     }
   };
 
@@ -101,6 +126,9 @@ export default function TeacherClassesPage() {
                     <button className="btn btn-primary btn-sm" onClick={() => openMeeting(cls)}>
                       {cls.meeting_url ? "Editar enlace" : "Asignar enlace"}
                     </button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => openRecording(cls)}>
+                      {cls.recording_url ? "Editar grabación" : "Subir grabación"}
+                    </button>
                     <a href={`/teacher/classes/${cls.id}/attendance`} className="btn btn-secondary btn-sm">
                       Asistencia
                     </a>
@@ -111,6 +139,14 @@ export default function TeacherClassesPage() {
                     <span style={{ color: "var(--color-text-muted)" }}>Enlace: </span>
                     <a href={cls.meeting_url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-primary)" }}>
                       {cls.meeting_url}
+                    </a>
+                  </div>
+                )}
+                {cls.recording_url && (
+                  <div style={{ marginTop: "8px", fontSize: "0.875rem" }}>
+                    <span style={{ color: "var(--color-text-muted)" }}>Grabación: </span>
+                    <a href={cls.recording_url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--color-primary)" }}>
+                      {cls.recording_platform ? `${cls.recording_platform} — ` : ""}{cls.recording_url}
                     </a>
                   </div>
                 )}
@@ -134,6 +170,41 @@ export default function TeacherClassesPage() {
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <button className="btn btn-secondary" onClick={() => setMeetingModal(null)} disabled={saving}>Cancelar</button>
               <button className="btn btn-primary" onClick={saveMeeting} disabled={saving}>{saving ? "Guardando…" : "Guardar"}</button>
+            </div>
+          </div>
+        )}
+      </Modal>
+      <Modal open={!!recordingModal} onClose={() => setRecordingModal(null)} title="Grabación de la clase" width="520px">
+        {recordingModal && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <p style={{ fontSize: "0.875rem", color: "var(--color-text-muted)" }}>
+              Publica aquí el enlace de la grabación de <strong>{recordingModal.name}</strong>. Los alumnos
+              inscritos en la clase la verán en «Mis cursos». Déjalo vacío y guarda para retirarla.
+            </p>
+            <div>
+              <label className="label">Plataforma / etiqueta</label>
+              <input
+                className="input"
+                value={recordingPlatform}
+                onChange={(e) => setRecordingPlatform(e.target.value)}
+                placeholder="Google Drive, YouTube, Moodle…"
+              />
+            </div>
+            <div>
+              <label className="label">URL de la grabación</label>
+              <input
+                className="input"
+                type="url"
+                value={recordingUrl}
+                onChange={(e) => setRecordingUrl(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+              <button className="btn btn-secondary" onClick={() => setRecordingModal(null)} disabled={savingRecording}>Cancelar</button>
+              <button className="btn btn-primary" onClick={saveRecording} disabled={savingRecording}>
+                {savingRecording ? "Guardando…" : "Guardar"}
+              </button>
             </div>
           </div>
         )}

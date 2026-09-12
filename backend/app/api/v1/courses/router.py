@@ -20,7 +20,7 @@ from app.middlewares.rbac import (
 from app.models.course import Category
 from app.schemas.course import (
     CourseCreate, CourseUpdate, ModuleCreate, ModuleUpdate, LessonCreate, LessonUpdate,
-    CategoryCreate, CategoryUpdate,
+    ReorderRequest, CategoryCreate, CategoryUpdate,
 )
 from app.services.course_service import CourseService, slugify
 from app.services.audit_service import AuditService
@@ -559,3 +559,68 @@ async def delete_lesson(
         request=request,
         metadata={"course_id": str(course_id)},
     )
+
+
+# ── Orden del temario (drag & drop del editor) ────────────────────────────────
+# `sort_order` es el orden, no la identidad: el editor envía la lista completa en su
+# orden final y aquí se reescribe 0..n-1 de una vez. Así insertar un módulo o una lección
+# al principio no obliga a renumerar (ni a borrar y recrear) todo el temario.
+
+
+@router.patch("/{course_id}/modules/order")
+async def reorder_course_modules(
+    course_id: UUID,
+    data: ReorderRequest,
+    request: Request,
+    current_user=Depends(require_admin_or_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """Reordena los módulos del curso (admin o docente asignado)."""
+    await ensure_course_manager(db, current_user, course_id)
+
+    svc = CourseService(db)
+    try:
+        items = await svc.reorder_modules(course_id, data.ordered_ids)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    await AuditService(db).log_action(
+        actor_user=current_user,
+        action="modules_reordered",
+        entity_type="course",
+        entity_id=course_id,
+        request=request,
+        metadata={"ordered_ids": [str(i) for i in data.ordered_ids]},
+    )
+    return {"items": items}
+
+
+@router.patch("/modules/{module_id}/lessons/order")
+async def reorder_module_lessons(
+    module_id: UUID,
+    data: ReorderRequest,
+    request: Request,
+    current_user=Depends(require_admin_or_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """Reordena las lecciones de un módulo (admin o docente asignado)."""
+    svc = CourseService(db)
+    course_id = await svc.get_module_course_id(module_id)
+    if not course_id:
+        raise HTTPException(status_code=404, detail="Module not found")
+    await ensure_course_manager(db, current_user, course_id)
+
+    try:
+        items = await svc.reorder_lessons(module_id, data.ordered_ids)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    await AuditService(db).log_action(
+        actor_user=current_user,
+        action="lessons_reordered",
+        entity_type="module",
+        entity_id=module_id,
+        request=request,
+        metadata={"course_id": str(course_id), "ordered_ids": [str(i) for i in data.ordered_ids]},
+    )
+    return {"items": items}

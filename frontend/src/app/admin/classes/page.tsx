@@ -2,20 +2,33 @@
 
 import { useState } from "react";
 import Modal from "@/components/ui/Modal";
-import { useClasses, ClassFilter, CourseClassItem } from "@/hooks/useAdminData";
+import {
+  ClassFilter,
+  CourseClassItem,
+  TeacherOption,
+  useAdminCourses,
+  useAdminTeachers,
+  useClasses,
+  useCreateClass,
+} from "@/hooks/useAdminData";
 import { api } from "@/lib/api";
 import { toast } from "@/components/ui/Toast";
-
-interface TeacherOption {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-}
 
 const WEEKDAY_LABELS: Record<string, string> = {
   mon: "Lun", tue: "Mar", wed: "Mié", thu: "Jue", fri: "Vie", sat: "Sáb", sun: "Dom",
 };
+
+const WEEKDAYS = [
+  { value: "mon", label: "Lunes" },
+  { value: "tue", label: "Martes" },
+  { value: "wed", label: "Miércoles" },
+  { value: "thu", label: "Jueves" },
+  { value: "fri", label: "Viernes" },
+  { value: "sat", label: "Sábado" },
+  { value: "sun", label: "Domingo" },
+];
+
+const PLATFORMS = ["Zoom", "Google Meet", "Microsoft Teams", "Jitsi", "Otra"];
 
 const STATUS_LABELS: Record<string, string> = {
   active: "Activa", inactive: "Inactiva", cancelled: "Cancelada", deleted: "Eliminada",
@@ -38,11 +51,88 @@ const FILTERS: { key: ClassFilter; label: string }[] = [
 
 export default function AdminClassesPage() {
   const [activeFilter, setActiveFilter] = useState<ClassFilter>("today");
-  const { data: classes, loading, refresh, updateStatus, deleteClass, updateMeetingLink } = useClasses(activeFilter);
+  const { data: classes, loading, refresh, updateStatus, deleteClass, updateMeetingLink, updateRecordingLink } = useClasses(activeFilter);
+
+  // Alta de clases desde este mismo menú (sólo administración/coordinación).
+  const { data: coursesPage } = useAdminCourses();
+  const { data: teachers } = useAdminTeachers();
+  const { createClassInCourse, saving: creating } = useCreateClass();
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    course_id: "",
+    teacher_id: "",
+    name: "",
+    days_of_week: [] as string[],
+    start_time: "",
+    end_time: "",
+    meeting_platform: "",
+    meeting_url: "",
+  });
+  const courseOptions = coursesPage?.items ?? [];
+
+  const toggleDay = (day: string) => {
+    setCreateForm((f) => ({
+      ...f,
+      days_of_week: f.days_of_week.includes(day)
+        ? f.days_of_week.filter((d) => d !== day)
+        : [...f.days_of_week, day],
+    }));
+  };
+
+  const openCreate = () => {
+    setCreateForm({
+      course_id: "",
+      teacher_id: "",
+      name: "",
+      days_of_week: [],
+      start_time: "",
+      end_time: "",
+      meeting_platform: "",
+      meeting_url: "",
+    });
+    setShowCreate(true);
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createForm.course_id) {
+      toast.error("Elige el curso de la clase");
+      return;
+    }
+    if (createForm.days_of_week.length === 0) {
+      toast.error("Marca al menos un día de la semana");
+      return;
+    }
+    if (!createForm.start_time || !createForm.end_time) {
+      toast.error("Indica la hora de inicio y de fin");
+      return;
+    }
+    try {
+      await createClassInCourse(
+        createForm.course_id,
+        {
+          name: createForm.name,
+          days_of_week: createForm.days_of_week,
+          start_time: createForm.start_time,
+          end_time: createForm.end_time,
+          meeting_platform: createForm.meeting_platform || null,
+          meeting_url: createForm.meeting_url || null,
+        },
+        createForm.teacher_id || undefined
+      );
+      setShowCreate(false);
+      refresh();
+    } catch {
+      toast.error("No se pudo crear la clase");
+    }
+  };
 
   const [meetingModal, setMeetingModal] = useState<CourseClassItem | null>(null);
   const [meetingPlatform, setMeetingPlatform] = useState("");
   const [meetingUrl, setMeetingUrl] = useState("");
+  const [recordingPlatform, setRecordingPlatform] = useState("");
+  const [recordingUrl, setRecordingUrl] = useState("");
   const [saving, setSaving] = useState(false);
 
   const [confirmDelete, setConfirmDelete] = useState<CourseClassItem | null>(null);
@@ -52,6 +142,8 @@ export default function AdminClassesPage() {
     setMeetingModal(cls);
     setMeetingPlatform(cls.meeting_platform || "");
     setMeetingUrl(cls.meeting_url || "");
+    setRecordingPlatform(cls.recording_platform || "");
+    setRecordingUrl(cls.recording_url || "");
   };
 
   const saveMeeting = async () => {
@@ -59,9 +151,10 @@ export default function AdminClassesPage() {
     setSaving(true);
     try {
       await updateMeetingLink(meetingModal.id, meetingPlatform, meetingUrl);
+      await updateRecordingLink(meetingModal.id, recordingPlatform, recordingUrl);
       setMeetingModal(null);
     } catch {
-      toast.error("Error al guardar enlace");
+      toast.error("Error al guardar");
     } finally {
       setSaving(false);
     }
@@ -127,6 +220,7 @@ export default function AdminClassesPage() {
           <h1>Clases</h1>
           <p>Gestión de todas las clases del sistema.</p>
         </div>
+        <button className="btn btn-primary" onClick={openCreate}>+ Nueva clase</button>
       </div>
 
       {/* Filters */}
@@ -202,8 +296,130 @@ export default function AdminClassesPage() {
         </div>
       )}
 
+      {/* Create Class Modal */}
+      <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Nueva clase" width="620px">
+        <form onSubmit={handleCreate} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div>
+            <label className="label">Curso *</label>
+            <select
+              className="input"
+              required
+              value={createForm.course_id}
+              onChange={(e) => setCreateForm((f) => ({ ...f, course_id: e.target.value }))}
+            >
+              <option value="">— Elige el curso —</option>
+              {courseOptions.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                  {c.is_active ? "" : " (inactivo)"}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="label">Docente (opcional)</label>
+            <select
+              className="input"
+              value={createForm.teacher_id}
+              onChange={(e) => setCreateForm((f) => ({ ...f, teacher_id: e.target.value }))}
+            >
+              <option value="">— Sin asignar por ahora —</option>
+              {teachers.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.first_name} {t.last_name} ({t.email})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="label">Nombre de la clase *</label>
+            <input
+              className="input"
+              required
+              value={createForm.name}
+              onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))}
+              placeholder="Grupo A — mañanas"
+            />
+          </div>
+          <div>
+            <label className="label">Días de la semana *</label>
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+              {WEEKDAYS.map((d) => (
+                <button
+                  type="button"
+                  key={d.value}
+                  className={`btn btn-sm ${createForm.days_of_week.includes(d.value) ? "btn-primary" : "btn-secondary"}`}
+                  onClick={() => toggleDay(d.value)}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+            <div>
+              <label className="label">Hora de inicio *</label>
+              <input
+                className="input"
+                required
+                type="time"
+                value={createForm.start_time}
+                onChange={(e) => setCreateForm((f) => ({ ...f, start_time: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="label">Hora de fin *</label>
+              <input
+                className="input"
+                required
+                type="time"
+                value={createForm.end_time}
+                onChange={(e) => setCreateForm((f) => ({ ...f, end_time: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <div>
+              <label className="label">Plataforma</label>
+              <select
+                className="input"
+                value={createForm.meeting_platform}
+                onChange={(e) => setCreateForm((f) => ({ ...f, meeting_platform: e.target.value }))}
+              >
+                <option value="">— Sin enlace todavía —</option>
+                {PLATFORMS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">URL de la clase</label>
+              <input
+                className="input"
+                type="url"
+                value={createForm.meeting_url}
+                onChange={(e) => setCreateForm((f) => ({ ...f, meeting_url: e.target.value }))}
+                placeholder="https://…"
+              />
+            </div>
+          </div>
+          <p style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>
+            El enlace de la clase y la grabación los puede publicar después el docente desde
+            «Mis clases»; administración también puede editarlos aquí.
+          </p>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+            <button type="button" className="btn btn-secondary" onClick={() => setShowCreate(false)} disabled={creating}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={creating}>
+              {creating ? "Creando…" : "Crear clase"}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
       {/* Meeting Link Modal */}
-      <Modal open={!!meetingModal} onClose={() => setMeetingModal(null)} title="Enlace de clase" width="480px">
+      <Modal open={!!meetingModal} onClose={() => setMeetingModal(null)} title="Enlaces de la clase" width="480px">
         {meetingModal && (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div>
@@ -213,6 +429,19 @@ export default function AdminClassesPage() {
             <div>
               <label className="label">URL de la reunión</label>
               <input className="input" type="url" value={meetingUrl} onChange={(e) => setMeetingUrl(e.target.value)} placeholder="https://..." />
+            </div>
+            <div style={{ borderTop: "1px solid var(--color-border)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+              <p style={{ fontSize: "0.8125rem", color: "var(--color-text-muted)" }}>
+                Grabación de la clase (también la puede publicar el docente titular). Vacío = retirarla.
+              </p>
+              <div>
+                <label className="label">Plataforma de la grabación</label>
+                <input className="input" value={recordingPlatform} onChange={(e) => setRecordingPlatform(e.target.value)} placeholder="Google Drive, YouTube…" />
+              </div>
+              <div>
+                <label className="label">URL de la grabación</label>
+                <input className="input" type="url" value={recordingUrl} onChange={(e) => setRecordingUrl(e.target.value)} placeholder="https://..." />
+              </div>
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <button className="btn btn-secondary" onClick={() => setMeetingModal(null)} disabled={saving}>Cancelar</button>

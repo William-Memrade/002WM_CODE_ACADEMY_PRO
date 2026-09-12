@@ -80,3 +80,27 @@ async def api_client(prepared_database: str):
 async def tokens(api_client: httpx.AsyncClient) -> dict[str, str]:
     """Tokens de los tres roles demo: tokens["admin"|"teacher"|"student"]."""
     return {role: await support.login(api_client, role) for role in support.DEMO_USERS}
+
+
+# ── Utillaje de montaje (conexión privilegiada) ──────────────────────────────
+
+@pytest_asyncio.fixture
+async def superuser_session(prepared_database: str):
+    """
+    Sesión contra la base de pruebas como superusuario (sin RLS).
+
+    Para MONTAR y LIMPIAR datos que no tienen endpoint de alta (una inscripción, un pago
+    pendiente) o para leer la verdad de la base sin que RLS la filtre. Los endpoints se
+    ejercitan siempre por HTTP con el rol RLS real.
+    """
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+    from sqlalchemy.pool import NullPool
+
+    engine = create_async_engine(support.TEST_DATABASE_URL, echo=False, poolclass=NullPool)
+    factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    try:
+        async with factory() as session:
+            yield session
+            await session.rollback()
+    finally:
+        await engine.dispose()

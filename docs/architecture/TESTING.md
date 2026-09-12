@@ -70,11 +70,16 @@ engine se crea en import-time).
 | `tests/test_password_policy.py` | 7 | Reglas y bordes de longitud (8-50) | No |
 | `tests/test_rls.py` | 29 | Aislamiento por rol y propiedad, con la base aplicando RLS | Sí |
 | `tests/test_api_integration.py` | 9 | App completa en proceso: health, contrato, login, `/users/me`, RBAC | Sí |
-| `tests/test_teacher_curriculum_progress.py` | 14 | Temario (alta/edición/borrado + 403 de otro docente) y progreso (docente escribe, alumno lee, rango 0-100, `completed_at`) | Sí |
+| `tests/test_teacher_curriculum_progress.py` | 20 | Temario (alta/edición/borrado + 403 de otro docente + cascada al borrar un módulo con lecciones), orden (`sort_order` 0..n-1, id ajeno → 400, sólo admin/docente) y progreso (docente escribe, alumno lee, rango 0-100, `completed_at`) | Sí |
+| `tests/test_enrollment_lifecycle_and_recording.py` | 5 | Ciclo del pago sin clases: aprobar deja la inscripción en `payment_approved`, `assign-class` la activa sin duplicar fila, el alumno ve el curso, `reject` no degrada a quien ya cursa, y grabación de clase (docente publica / ajeno 403 / alumno 403) | Sí |
 
-Total: **158 casos** (105 sin servicios, 53 con servicios) en ~25 s. Otras herramientas
+Total: **168 casos** (105 sin servicios, 63 con servicios) en ~80 s. Otras herramientas
 que no son pytest: `scripts/smoke_api.py` (humo contra un deploy) y
 `scripts/check_schema_drift.py` (modelos del ORM vs base real).
+
+> Las pruebas de integración comprueban el camino real: el endpoint **y** las políticas RLS
+> (`academy_app`). Por eso cubren también los fallos que sólo aparecen con RLS forzado
+> (escrituras que afectan a 0 filas) y los que violan un `CHECK`/`NOT NULL` del esquema.
 
 Lo que **no** existe todavía:
 

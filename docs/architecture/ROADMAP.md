@@ -17,15 +17,15 @@
 - [x] Categorías
 - [x] Módulos y lecciones — modelos `Module`/`Lesson`; alta (`POST /courses/{id}/modules`, `POST /courses/modules/{id}/lessons`), edición (`PUT /courses/modules|lessons/{id}`), borrado (`DELETE`) y temario completo (`GET /courses/{id}/modules`). Escribir exige ser el docente del curso: `ensure_course_manager` (`middlewares/rbac.py`); verificado en `backend/tests/test_teacher_curriculum_progress.py`
 - [x] Catálogo público de cursos
-- [x] Inscripción de alumnos — `Enrollment` + flujo de pago (`submit-proof` / `assign-class`)
-- [x] Asignación docentes a cursos
+- [x] Inscripción de alumnos — `Enrollment` + flujo de pago (`submit-proof` / `assign-class`). El pago aprobado **sin clases con cupo** ya no deja al alumno sin nada: crea la inscripción en `payment_approved` (espera de asignación de clase) y `assign-class` la activa reutilizando la misma fila (`uq_enrollments`); ver `FLOWS.md`
+- [x] Asignación docentes a cursos — selector «Docente asignado» en el formulario de curso del panel admin (`/admin/courses`, alta y edición) sobre `PUT /courses/{id}` (`teacher_id`) y `GET /teachers` (perfiles); la tabla muestra el docente de cada curso
 
 ### Sprint 3: Pagos + Contenido
 - [x] Flujo de pago manual completo — `api/v1/payments/router.py`
 - [x] Upload de comprobantes — `PaymentProof` + validación de MIME real
 - [x] Aprobación/rechazo por admin
-- [ ] Clases grabadas (upload + streaming) — modelos `RecordedClass`/`LiveClass` declarados pero sin usar: no hay endpoints ni storage de vídeo
-- [x] Clases en vivo (links) — `PATCH /course-classes/{class_id}/meeting-link`
+- [~] Clases grabadas (upload + streaming) — el docente titular o administración ya publican el **enlace** de la grabación (`PATCH /course-classes/{class_id}/recording-link`, visible para el alumno en `/student/courses`); sigue sin haber subida ni streaming propio: `RecordedClass`/`LiveClass` continúan sin usar
+- [x] Clases en vivo (links) — `PATCH /course-classes/{class_id}/meeting-link` (+ el mismo patrón para la grabación)
 - [x] Progreso del alumno — `enrollments.progress_percentage` con endpoints y UI: el docente lo escribe (`PATCH /course-classes/{class_id}/students/{student_id}/progress`, 0-100, sella `completed_at` al 100) y el alumno lo lee (`GET /students/me/progress` + barra en `/student/courses`). La lista de alumnos de la clase expone el progreso
 - [ ] Cálculo automático del progreso (lecciones vistas / total) — hoy es un porcentaje que marca el docente a mano; ver `FLOWS.md`
 
@@ -34,9 +34,9 @@
 - [x] Landing page
 - [x] Catálogo de cursos — `/courses` + `/courses/[slug]`
 - [x] Auth pages (login, register) — + `change-password`
-- [~] Panel alumno — dashboard, cursos, pagos y asistencia reales; notificaciones, certificados y perfil son placeholders
-- [x] Panel admin — dashboard, pagos, cursos, clases, usuarios, docentes, categorías, auditoría, settings, feature flags
-- [x] Panel docente — dashboard, cursos (`/teacher/courses`), clases, asistencia y alumnos (`/teacher/students`) reales, más el editor de temario (`/teacher/courses/[id]/curriculum`). Fuera de este item quedan vídeos, calificación y versiones
+- [~] Panel alumno — dashboard, cursos, pagos y asistencia reales; `Mis Cursos` muestra el ciclo completo (pendiente de confirmación → en espera de asignación de clase → activo con enlace y grabación); notificaciones, certificados y perfil son placeholders
+- [x] Panel admin — dashboard, pagos, cursos (con **docente asignado** y acceso al **temario**), clases (**alta desde el propio menú**, enlaces y grabación), usuarios, docentes, categorías, auditoría, settings, feature flags
+- [x] Panel docente — dashboard, cursos (`/teacher/courses`), clases (con enlace de clase y **grabación**), asistencia y alumnos (`/teacher/students`) reales, más el editor de temario (`/teacher/courses/[id]/curriculum`) con **orden por arrastre**. Fuera de este item quedan vídeos propios, calificación y versiones
 
 ---
 
@@ -72,7 +72,7 @@
 
 ### Sprint 8: Testing + Security
 - [~] Tests unitarios (>80% coverage backend) — 7 ficheros (password policy, security headers, CORS…); sin coverage ni umbral
-- [x] Tests de integración API — `test_api_integration.py` + `tests/support.py` (Postgres/Redis, marcador `integration`); temario y progreso en `test_teacher_curriculum_progress.py` (14 casos: permisos, 404/403, rango 0-100, `completed_at` y RLS del docente)
+- [x] Tests de integración API — `test_api_integration.py` + `tests/support.py` (Postgres/Redis, marcador `integration`); temario y progreso en `test_teacher_curriculum_progress.py` (20 casos: permisos, 404/403, reordenado, cascada, rango 0-100, `completed_at` y RLS del docente) y el ciclo inscripción→clase→grabación en `test_enrollment_lifecycle_and_recording.py` (**168 casos en verde** el 2026-09-11)
 - [ ] Tests E2E frontend (Playwright) — sin instalar y sin carpeta de tests
 - [~] Security audit (OWASP checklist) — `SECURITY.md` + headers de seguridad + bumps de CVE (next/postcss/sharp); sin auditoría formal
 - [ ] Performance testing (k6/locust) — solo `QueryProfilingMiddleware` (`X-Query-Count`, `X-DB-Time-Ms`)
@@ -145,3 +145,40 @@ para que no se pierdan como trabajo invisible:
 - **Utilidades de frontend** — `hooks/useTeacherData.ts`, `hooks/useStudentProgress.ts` y la página nueva `/teacher/courses/[id]/curriculum`; las páginas `/teacher/courses` y `/teacher/students` se reescribieron y `/student/courses` ganó la barra de progreso.
 - **Tests de integración del lote** — `backend/tests/test_teacher_curriculum_progress.py` (14 casos) con montaje/desmontaje de la inscripción por SQL, porque no existe endpoint de alta de inscripciones.
 - **Reparto de responsabilidades entre capas** — `EnrollmentRepository`/`EnrollmentService` nuevos; `CourseService` absorbió el CRUD del temario y `CourseClassService` devuelve el progreso en el roster.
+
+## Bitácora: pasos no previstos (2026-09-11, segunda tanda)
+
+Validación del usuario en el despliegue: faltaba asignar docente al curso, crear clases desde
+el menú de Clases, el alumno no veía el curso tras aprobarse el pago sin clases, y el editor de
+temario mostraba números que parecían la clave primaria. Salieron además dos fallos de fondo:
+
+- **`chk_payments_status` se quedó corto (migración `025`)** — el `CHECK` de `001` sólo admitía
+  `pending | pending_review | approved | rejected`, pero `approve_payment` escribe
+  `approved_pending_class` cuando no hay clase con cupo: aprobar un pago sin clases devolvía un
+  error de constraint. La 025 amplía el `CHECK`.
+- **Borrar un módulo con lecciones fallaba** — la relación `Module.lessons` no declaraba
+  `passive_deletes`, así que SQLAlchemy intentaba `UPDATE lessons SET module_id = NULL`
+  (violación de `NOT NULL`) en lugar de dejar actuar al `ON DELETE CASCADE` de la FK. Igual en
+  `Course.modules`. Se añadió `cascade="all, delete-orphan"` + `passive_deletes=True`.
+- **La inscripción no existía hasta haber clase** — `approve_payment` sólo creaba la fila dentro
+  del caso «hay clase con cupo»; sin clases el alumno no veía nada. Ahora crea la inscripción en
+  `payment_approved` y `assign-class` la activa **reutilizando la misma fila** (`uq_enrollments`).
+  Rechazar un pago sólo degrada inscripciones sin clase: no puede tumbar a quien ya está cursando.
+- **RLS del docente sobre `course_classes` (migración `025`)** — 017 le daba `SELECT`, no `UPDATE`:
+  con RLS forzado sus enlaces de clase y grabación habrían afectado 0 filas en silencio.
+- **`sort_order` como orden, no como identidad** — nuevos endpoints
+  `PATCH /courses/{course_id}/modules/order` y `PATCH /courses/modules/{module_id}/lessons/order`
+  que reescriben la secuencia 0..n-1 de una vez, y editor con arrastre (⠿) y botones ↑ ↓ en
+  `components/curriculum/CurriculumEditor.tsx`. Insertar una lección al principio ya no obliga a
+  renumerar el resto.
+- **Editor de temario compartido** — se extrajo de `/teacher/...` a un componente que ahora monta
+  también `/admin/courses/[id]/curriculum`: administración edita temario sin pasar por el docente.
+- **Grabación de la clase** — `course_classes.recording_url` + `recording_platform` (migración
+  `025`) con `PATCH /course-classes/{class_id}/recording-link`; la publica el docente titular o
+  administración y la ve el alumno inscrito. Sigue sin haber subida de vídeo ni streaming.
+- **Alta de clases desde el menú de Clases** — `useCreateClass()` en `hooks/useAdminData.ts`
+  (POST en el curso elegido + `assign-teacher` en el mismo paso) y modal en `/admin/classes`,
+  sin duplicar el formulario que ya vivía dentro del curso.
+- **Curso inactivo = curso invisible para el alumno** — el curso nace en borrador (`is_active`
+  falso) y la política `courses_select` sólo lo muestra activo; se documenta en `FLOWS.md` porque
+  explica por qué un alumno con pago aprobado puede no ver todavía la ficha del curso.

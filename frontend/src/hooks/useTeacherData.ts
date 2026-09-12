@@ -10,6 +10,8 @@
  *   POST   /courses/{course_id}/modules          POST /courses/modules/{id}/lessons
  *   PUT    /courses/modules/{id}                 PUT  /courses/lessons/{id}
  *   DELETE /courses/modules/{id}                 DELETE /courses/lessons/{id}
+ *   PATCH  /courses/{course_id}/modules/order    (orden del temario, 0..n-1)
+ *   PATCH  /courses/modules/{module_id}/lessons/order
  *   PATCH  /course-classes/{class_id}/students/{student_id}/progress
  */
 "use client";
@@ -210,6 +212,54 @@ export function useCourseCurriculum(courseId: string) {
     await fetch_();
   };
 
+  /**
+   * Reordena los módulos del curso. `ordered_ids` va en el orden final; el backend
+   * reescribe `sort_order` como 0..n-1 y devuelve el temario ya ordenado.
+   *
+   * Se pinta en local antes de la respuesta para que el arrastre no dé tirones; si la
+   * llamada falla se recarga el orden real.
+   */
+  const reorderModules = async (orderedIds: string[]) => {
+    const byId = new Map(modules.map((m) => [m.id, m]));
+    setModules(orderedIds.map((id) => byId.get(id)).filter(Boolean) as TeacherModule[]);
+    try {
+      const res = await api.patch<{ items: TeacherModule[] }>(
+        `/courses/${courseId}/modules/order`,
+        { ordered_ids: orderedIds }
+      );
+      setModules(res.items ?? []);
+    } catch {
+      toast.error("No se pudo guardar el orden de los módulos");
+      await fetch_();
+    }
+  };
+
+  /** Reordena las lecciones de un módulo (misma mecánica que los módulos). */
+  const reorderLessons = async (moduleId: string, orderedIds: string[]) => {
+    setModules((prev) =>
+      prev.map((m) =>
+        m.id === moduleId
+          ? {
+              ...m,
+              lessons: [...m.lessons].sort(
+                (a, b) => orderedIds.indexOf(a.id) - orderedIds.indexOf(b.id)
+              ),
+            }
+          : m
+      )
+    );
+    try {
+      const res = await api.patch<{ items: TeacherModule[] }>(
+        `/courses/modules/${moduleId}/lessons/order`,
+        { ordered_ids: orderedIds }
+      );
+      setModules(res.items ?? []);
+    } catch {
+      toast.error("No se pudo guardar el orden de las lecciones");
+      await fetch_();
+    }
+  };
+
   return {
     modules,
     loading,
@@ -220,5 +270,7 @@ export function useCourseCurriculum(courseId: string) {
     createLesson,
     updateLesson,
     deleteLesson,
+    reorderModules,
+    reorderLessons,
   };
 }

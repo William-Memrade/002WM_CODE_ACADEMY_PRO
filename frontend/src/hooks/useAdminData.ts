@@ -68,6 +68,10 @@ export interface CourseClassItem {
   teacher_name?: string | null;
   course_title?: string | null;
   has_meeting_link?: boolean;
+  recording_platform?: string | null;
+  recording_url?: string | null;
+  recording_updated_at?: string | null;
+  has_recording?: boolean;
 }
 
 export interface CourseClassCapacity {
@@ -323,6 +327,77 @@ export function useAdminCourseClasses(courseId: string) {
   return { data, loading, refresh: fetch_, createClass, updateClass, assignTeacher, getCapacity };
 }
 
+// ── useAdminTeachers (perfiles de docente: `teachers.id`, no el id de usuario) ─
+
+export interface TeacherOption {
+  id: string;
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+/**
+ * Docentes activos para asignarlos a un curso o a una clase.
+ *
+ * Ojo: `id` es el id del PERFIL docente (`teachers.id`), que es lo que esperan
+ * `courses.teacher_id` y `course_classes.teacher_id`; el id de usuario no sirve.
+ */
+export function useAdminTeachers() {
+  const [data, setData] = useState<TeacherOption[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetch_ = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await api.get<{ items: TeacherOption[] }>("/teachers");
+      setData(res.items ?? []);
+    } catch { toast.error("Error al cargar docentes"); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { fetch_(); }, [fetch_]);
+  return { data, loading, refresh: fetch_ };
+}
+
+/** Nombre para mostrar de un docente ("Sin asignar" cuando no hay). */
+export function teacherLabel(teacher?: { first_name: string; last_name: string } | null) {
+  if (!teacher) return "Sin asignar";
+  return `${teacher.first_name} ${teacher.last_name}`.trim();
+}
+
+// ── useCreateClass (alta de clase para un curso cualquiera) ──────────────────
+
+/**
+ * Crea una clase en un curso y, si se indica, le asigna el docente.
+ *
+ * `POST /courses/{course_id}/classes` no acepta `teacher_id`, así que la asignación va
+ * en un segundo paso con `PATCH /course-classes/{id}/assign-teacher`.
+ */
+export function useCreateClass() {
+  const [saving, setSaving] = useState(false);
+
+  const createClassInCourse = async (
+    courseId: string,
+    payload: object,
+    teacherId?: string
+  ): Promise<CourseClassItem> => {
+    setSaving(true);
+    try {
+      const created = await api.post<CourseClassItem>(`/courses/${courseId}/classes`, payload);
+      if (teacherId) {
+        await api.patch(`/course-classes/${created.id}/assign-teacher`, { teacher_id: teacherId });
+      }
+      toast.success(`Clase "${created.name}" creada`);
+      return created;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return { createClassInCourse, saving };
+}
+
 // ── useClasses (general class listing for admin/coordinator) ────────────────
 
 export type ClassFilter = "today" | "all" | "without_teacher" | "available_slots" | "missing_link" | "inactive" | "cancelled" | "deleted";
@@ -376,7 +451,17 @@ export function useClasses(filter?: ClassFilter) {
     fetch_();
   };
 
-  return { data, loading, refresh: fetch_, updateStatus, deleteClass, updateMeetingLink };
+  /** Publica (o quita) la grabación de la clase: URL vacía = retirarla. */
+  const updateRecordingLink = async (classId: string, platform: string, url: string) => {
+    await api.patch(`/course-classes/${classId}/recording-link`, {
+      recording_platform: platform || null,
+      recording_url: url || null,
+    });
+    toast.success(url ? "Grabación publicada" : "Grabación retirada");
+    fetch_();
+  };
+
+  return { data, loading, refresh: fetch_, updateStatus, deleteClass, updateMeetingLink, updateRecordingLink };
 }
 
 // ── useTeacherClasses ─────────────────────────────────────────────────────────
@@ -402,7 +487,21 @@ export function useTeacherClasses() {
     fetch_();
   };
 
-  return { data, loading, refresh: fetch_, updateMeetingLink };
+  /**
+   * Publica (o quita) la grabación de la clase.
+   *
+   * URL vacía = borrar la grabación publicada.
+   */
+  const updateRecordingLink = async (classId: string, platform: string, url: string) => {
+    await api.patch(`/course-classes/${classId}/recording-link`, {
+      recording_platform: platform || null,
+      recording_url: url || null,
+    });
+    toast.success(url ? "Grabación publicada" : "Grabación retirada");
+    fetch_();
+  };
+
+  return { data, loading, refresh: fetch_, updateMeetingLink, updateRecordingLink };
 }
 
 // ── useAuditLogs ────────────────────────────────────────────────────────────

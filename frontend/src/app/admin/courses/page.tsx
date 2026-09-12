@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
-import { useAdminCourses, useAdminCategories, AdminCourse } from "@/hooks/useAdminData";
+import { useAdminCourses, useAdminCategories, useAdminTeachers, teacherLabel, AdminCourse } from "@/hooks/useAdminData";
 import { toast } from "@/components/ui/Toast";
 import { formatCurrency } from "@/lib/currency";
 import { usePlatformSettings } from "@/hooks/usePlatformSettings";
@@ -36,6 +36,7 @@ export default function AdminCoursesPage() {
   const router = useRouter();
   const { data, loading, createCourse, updateCourse, toggleActive, deleteCourse } = useAdminCourses();
   const { data: categoriesData } = useAdminCategories();
+  const { data: teachers } = useAdminTeachers();
 
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState<AdminCourse | null>(null);
@@ -53,6 +54,7 @@ export default function AdminCoursesPage() {
     full_payment_discount_pct: "",
     category_id: "",
     is_featured: false,
+    teacher_id: "",
   });
 
   const openCreate = () => {
@@ -67,6 +69,7 @@ export default function AdminCoursesPage() {
       full_payment_discount_pct: "",
       category_id: "",
       is_featured: false,
+      teacher_id: "",
     });
     setShowCreate(true);
   };
@@ -83,6 +86,7 @@ export default function AdminCoursesPage() {
       full_payment_discount_pct: String(c.full_payment_discount_pct ?? ""),
       category_id: c.category?.id ?? "",
       is_featured: c.is_featured ?? false,
+      teacher_id: c.teacher?.id ?? "",
     });
     setEditing(c);
   };
@@ -97,6 +101,9 @@ export default function AdminCoursesPage() {
       full_payment_discount_pct: form.full_payment_discount_pct ? parseFloat(form.full_payment_discount_pct) : 0,
       category_id: form.category_id || null,
       is_featured: form.is_featured,
+      // `teacher_id` es el id del PERFIL docente (teachers.id), no el de usuario.
+      // Cadena vacía = quitar la asignación.
+      teacher_id: form.teacher_id || null,
     };
 
     if (forCreate) {
@@ -172,18 +179,23 @@ export default function AdminCoursesPage() {
           <table>
             <thead>
               <tr>
-                <th>Curso</th><th>Categoría</th>
+                <th>Curso</th><th>Categoría</th><th>Docente</th>
                 <th>Precio total</th><th>Nivel</th><th>Estado</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {courses.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign: "center", color: "var(--color-text-muted)", padding: "32px" }}>No hay cursos registrados.</td></tr>
+                <tr><td colSpan={7} style={{ textAlign: "center", color: "var(--color-text-muted)", padding: "32px" }}>No hay cursos registrados.</td></tr>
               )}
               {courses.map((c) => (
                 <tr key={c.id}>
                   <td style={{ fontWeight: 500, maxWidth: "220px" }}>{c.title}</td>
                   <td>{c.category ? <span className="badge badge-neutral">{c.category.name}</span> : "—"}</td>
+                  <td>
+                    {c.teacher ? teacherLabel(c.teacher) : (
+                      <span className="badge badge-warning">Sin asignar</span>
+                    )}
+                  </td>
                   <td>{formatCurrency(c.price, c.currency)}</td>
                   <td><span className="badge badge-neutral">{c.level}</span></td>
                   <td>
@@ -193,6 +205,7 @@ export default function AdminCoursesPage() {
                   </td>
                   <td style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
                     <button className="btn btn-secondary btn-sm" onClick={() => openEdit(c)}>Editar</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => router.push(`/admin/courses/${c.id}/curriculum`)}>Temario</button>
                     <button className="btn btn-secondary btn-sm" onClick={() => router.push(`/admin/courses/${c.id}/classes`)}>Clases</button>
                     <button
                       className={`btn btn-sm ${c.is_active ? "btn-secondary" : "btn-primary"}`}
@@ -270,6 +283,18 @@ export default function AdminCoursesPage() {
             </select>
           </div>
           <div>
+            <label style={{ display: "block", marginBottom: "6px", fontWeight: 500, fontSize: "0.875rem" }}>Docente asignado</label>
+            <select className="input" value={form.teacher_id} onChange={e => setForm(f => ({ ...f, teacher_id: e.target.value }))}>
+              <option value="">— Sin asignar —</option>
+              {teachers.map((t) => (
+                <option key={t.id} value={t.id}>{t.first_name} {t.last_name} ({t.email})</option>
+              ))}
+            </select>
+            <p style={{ fontSize: "0.75rem", color: "var(--color-text-muted)", marginTop: "4px" }}>
+              El docente verá el curso en «Mis cursos» y podrá editar su temario, sus clases y el progreso.
+            </p>
+          </div>
+          <div>
             <label style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 500, fontSize: "0.875rem", cursor: "pointer" }}>
               <input type="checkbox" checked={form.is_featured} onChange={e => setForm(f => ({ ...f, is_featured: e.target.checked }))} />
               Curso destacado
@@ -342,6 +367,15 @@ export default function AdminCoursesPage() {
                 <option value="">— Sin categoría —</option>
                 {(categoriesData ?? []).map((c: any) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ display: "block", marginBottom: "6px", fontWeight: 500, fontSize: "0.875rem" }}>Docente asignado</label>
+              <select className="input" value={form.teacher_id} onChange={e => setForm(f => ({ ...f, teacher_id: e.target.value }))}>
+                <option value="">— Sin asignar —</option>
+                {teachers.map((t) => (
+                  <option key={t.id} value={t.id}>{t.first_name} {t.last_name} ({t.email})</option>
                 ))}
               </select>
             </div>

@@ -476,9 +476,38 @@ async def approve_payment(
             selected_class = cls
             break
 
+    # La inscripción del alumno en ese curso: `uq_enrollments (student_id, course_id)`
+    # admite una sola fila por alumno y curso, así que el ciclo de vida completo
+    # (aprobado sin clase → activo con clase) se guarda ahí en vez de crear filas nuevas.
+    existing_enrollment = (
+        await db.execute(
+            select(Enrollment).where(
+                Enrollment.student_id == payment.student_id,
+                Enrollment.course_id == payment.course_id,
+            )
+        )
+    ).scalar_one_or_none()
+
     if not selected_class:
-        # No class with capacity — mark as approved_pending_class
+        # Sin clase con cupo: el pago queda aprobado y la inscripción también, pero sin
+        # clase. El alumno ya ve el curso, con el aviso "en espera de asignación de clase",
+        # y el admin lo completa con POST /payments/{id}/assign-class.
+        if existing_enrollment is None:
+            existing_enrollment = Enrollment(
+                student_id=payment.student_id,
+                course_id=payment.course_id,
+                course_class_id=None,
+                status="payment_approved",
+                approved_at=now,
+            )
+            db.add(existing_enrollment)
+            await db.flush()
+        else:
+            existing_enrollment.status = "payment_approved"
+            existing_enrollment.approved_at = existing_enrollment.approved_at or now
+
         payment.status = "approved_pending_class"
+        payment.enrollment_id = existing_enrollment.id
         payment.reviewed_by = current_user.id
         payment.reviewed_at = now
         payment.review_notes = body.notes
@@ -496,6 +525,7 @@ async def approve_payment(
                 "currency": payment.currency,
                 "student_id": str(payment.student_id),
                 "course_id": str(payment.course_id),
+                "enrollment_id": str(existing_enrollment.id),
                 "reason": "no_class_capacity",
             },
         )
@@ -509,6 +539,7 @@ async def approve_payment(
         return {
             "id": str(payment.id),
             "status": "approved_pending_class",
+            "enrollment_id": str(existing_enrollment.id),
             "message": "Pago aprobado pero sin cupo disponible. Un coordinador te asignará una clase.",
         }
 
@@ -518,15 +549,21 @@ async def approve_payment(
     payment.reviewed_at = now
     payment.review_notes = body.notes
 
-    # CREATE enrollment now with course_class_id
-    enrollment = Enrollment(
-        student_id=payment.student_id,
-        course_id=payment.course_id,
-        course_class_id=selected_class.id,
-        status="active",
-        approved_at=now,
-    )
-    db.add(enrollment)
+    # Inscripción activa, con la clase encontrada (se reutiliza la fila si ya existía).
+    if existing_enrollment is None:
+        enrollment = Enrollment(
+            student_id=payment.student_id,
+            course_id=payment.course_id,
+            course_class_id=selected_class.id,
+            status="active",
+            approved_at=now,
+        )
+        db.add(enrollment)
+    else:
+        enrollment = existing_enrollment
+        enrollment.course_class_id = selected_class.id
+        enrollment.status = "active"
+        enrollment.approved_at = enrollment.approved_at or now
     await db.flush()
 
     # Link payment to enrollment
@@ -649,18 +686,25 @@ async def assign_class_to_payment(
     if target_class.status != "active":
         raise HTTPException(status_code=409, detail="Class is not active")
 
-    # Check for existing active enrollment to avoid duplicates
-    existing_enrollment = await db.execute(
-        select(Enrollment).where(
-            Enrollment.student_id == payment.student_id,
-            Enrollment.course_id == payment.course_id,
-            Enrollment.status == "active",
+    # Inscripción del alumno en el curso: puede venir en 'payment_approved' (aprobada sin
+    # clase), que es el caso normal tras aprobar sin cupo. Sólo es conflicto si ya está
+    # activa y con clase asignada.
+    existing_enrollment = (
+        await db.execute(
+            select(Enrollment).where(
+                Enrollment.student_id == payment.student_id,
+                Enrollment.course_id == payment.course_id,
+            )
         )
-    )
-    if existing_enrollment.scalar_one_or_none():
+    ).scalar_one_or_none()
+    if (
+        existing_enrollment is not None
+        and existing_enrollment.status == "active"
+        and existing_enrollment.course_class_id is not None
+    ):
         raise HTTPException(
             status_code=409,
-            detail="Student already has an active enrollment for this course"
+            detail="Student already has an active enrollment for this course",
         )
 
     now = datetime.now(timezone.utc)
@@ -694,15 +738,22 @@ async def assign_class_to_payment(
             detail=f"Class is full ({enrolled}/{global_max} enrolled)"
         )
 
-    # CREATE enrollment
-    enrollment = Enrollment(
-        student_id=payment.student_id,
-        course_id=payment.course_id,
-        course_class_id=body.course_class_id,
-        status="active",
-        approved_at=now,
-    )
-    db.add(enrollment)
+    # Activa la inscripción que esperaba clase (o la crea, si el pago se aprobó por una
+    # vía que no la generó). La fila es la misma: nunca hay dos por alumno y curso.
+    if existing_enrollment is None:
+        enrollment = Enrollment(
+            student_id=payment.student_id,
+            course_id=payment.course_id,
+            course_class_id=body.course_class_id,
+            status="active",
+            approved_at=now,
+        )
+        db.add(enrollment)
+    else:
+        enrollment = existing_enrollment
+        enrollment.course_class_id = body.course_class_id
+        enrollment.status = "active"
+        enrollment.approved_at = enrollment.approved_at or now
     await db.flush()
 
     # Link payment to enrollment and update status
@@ -807,6 +858,20 @@ async def reject_payment(
     payment.reviewed_by = current_user.id
     payment.reviewed_at = now
     payment.review_notes = body.notes
+
+    # La inscripción que esperaba clase refleja el rechazo (el alumno ve el motivo). Sólo
+    # esa: si el alumno ya está cursando (inscripción con clase), rechazar un pago nuevo
+    # del mismo curso no puede cerrarle el curso.
+    enrollment_q = await db.execute(
+        select(Enrollment).where(
+            Enrollment.student_id == payment.student_id,
+            Enrollment.course_id == payment.course_id,
+        )
+    )
+    enrollment = enrollment_q.scalar_one_or_none()
+    if enrollment is not None and enrollment.course_class_id is None:
+        enrollment.status = "payment_rejected"
+        enrollment.cancellation_reason = body.notes
 
     audit = AuditService(db)
     await audit.log_action(

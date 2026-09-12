@@ -115,7 +115,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON my_new_table TO academy_app;
 | `USING` | SELECT, UPDATE (target rows), DELETE | "Can this user **see/touch** this row?" | Deny all |
 | `WITH CHECK` | INSERT, UPDATE (new values) | "Can this user **create/change to** this row?" | Falls back to `USING` |
 
-## Teacher-Scoped Writes: Contenido y Progreso (migración 024)
+## Teacher-Scoped Writes: Contenido, Progreso y Enlaces de Clase (migraciones 024 y 025)
 
 El docente escribe dos cosas que no están en `courses`: el temario
 (`modules`/`lessons`) y el progreso de sus alumnos (`enrollments`). Ambas
@@ -125,6 +125,19 @@ escrituras las autorizan **dos capas** y hay que tocar las dos:
 |------|-------|-----------|
 | Aplicación | `middlewares/rbac.py` → `ensure_course_manager`, `ensure_class_manager` | 404 si el recurso no existe, 403 si el docente no es el titular del curso/clase |
 | Base de datos | `024_rls_teacher_curriculum_and_progress.sql` | `modules_delete`, `lessons_delete`, `enrollments_select` y `enrollments_update` incluyen al docente (del curso o de la clase) |
+
+A eso se sumó la **migración `025`**, por el mismo motivo y con el mismo patrón:
+
+| Capa | Dónde | Qué añade |
+|------|-------|-----------|
+| Aplicación | `course_classes/router.py` → `ensure_class_manager` | publicar enlace de clase (`meeting-link`) y grabación (`recording-link`) |
+| Base de datos | `025_enrollment_class_lifecycle_and_recording.sql` | `course_classes_teacher_update`: el docente titular de la clase puede hacer `UPDATE` de su fila (`WITH CHECK` revalida `teacher_id`, así que no puede reasignarla a otro docente) |
+
+`025` también arregla `chk_payments_status` (faltaba `approved_pending_class`, el estado que
+escribe `approve_payment` cuando no hay clase con cupo) y añade las columnas de grabación a
+`course_classes`. Los estados de inscripción siguen siendo los de `chk_enrollments_status`
+(`payment_pending_review`, `payment_approved`, `active`, …): no hubo cambios de esquema en
+`enrollments`, porque `course_class_id` ya era NULL-able.
 
 > **Pitfall**: si sólo se añade la comprobación en Python, en producción (RLS
 > forzado) el `DELETE`/`UPDATE` afecta a **0 filas** y el endpoint responde 204 o
@@ -181,5 +194,11 @@ aplica en orden y las registra en `schema_migrations` (aplicarlas a mano con
 ```bash
 cd docker && docker compose run --rm migrate
 ```
+
+En producción las aplica el backend al arrancar (`BOOTSTRAP_DB=migrate+seed` →
+`backend/scripts/bootstrap_db.py` → `apply_migrations.py --seed-if-empty`); los
+logs del servicio de API muestran `→ 025_enrollment_class_lifecycle_and_recording.sql`
+seguido de `ok`. Si el bootstrap falla, el contenedor no arranca (el `CMD` encadena
+`bootstrap_db.py && uvicorn`).
 
 After applying, restart the backend to pick up the new `DATABASE_RLS_URL`.

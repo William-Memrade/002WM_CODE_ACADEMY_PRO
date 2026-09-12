@@ -16,7 +16,8 @@ from app.middlewares.rbac import (
 )
 from app.schemas.course_class import (
     CourseClassCreate, CourseClassUpdate, CourseClassStatusUpdate,
-    AssignTeacherRequest, MeetingLinkUpdateRequest, CourseClassCapacityResponse,
+    AssignTeacherRequest, MeetingLinkUpdateRequest, RecordingLinkUpdateRequest,
+    CourseClassCapacityResponse,
 )
 from app.schemas.enrollment import EnrollmentProgressUpdate
 from app.services.course_class_service import CourseClassService
@@ -285,23 +286,8 @@ async def update_meeting_link(
     if not course_class:
         raise HTTPException(status_code=404, detail="Class not found")
 
-    user_roles = set(current_user.role_names) if hasattr(current_user, "role_names") else set()
-    is_admin = "admin" in user_roles
-    is_coordinator = "coordinator" in user_roles
-
-    if not is_admin and not is_coordinator:
-        # Teacher must be assigned to this class
-        from app.models.user import Teacher
-        from sqlalchemy import select
-        t_result = await db.execute(
-            select(Teacher).where(Teacher.user_id == current_user.id)
-        )
-        teacher = t_result.scalar_one_or_none()
-        if not teacher:
-            raise HTTPException(status_code=403, detail="Teacher profile not found")
-
-        if str(course_class.get("teacher_id")) != str(teacher.id):
-            raise HTTPException(status_code=403, detail="You are not assigned to this class")
+    # Admin, coordinador o el docente titular de la clase.
+    await ensure_class_manager(db, current_user, class_id)
 
     result = await svc.update_meeting_link(
         class_id, data.meeting_platform, data.meeting_url
@@ -315,6 +301,48 @@ async def update_meeting_link(
         entity_label=course_class["name"],
         request=request,
         metadata={"meeting_platform": data.meeting_platform},
+    )
+    return result
+
+
+# ── Recording link (admin, coordinator, or assigned teacher) ──────────────────
+
+@router.patch("/course-classes/{class_id}/recording-link")
+async def update_recording_link(
+    class_id: UUID,
+    data: RecordingLinkUpdateRequest,
+    request: Request,
+    current_user=Depends(require_admin_or_coordinator_or_teacher),
+    db: AsyncSession = Depends(get_rls_db),
+):
+    """
+    Publica (o borra) la grabación de la clase.
+
+    La sube el docente titular de la clase una vez el admin le asignó alumnos; el
+    alumno la ve en `GET /students/me/classes`. `recording_url` vacío la borra.
+    """
+    svc = CourseClassService(db)
+    course_class = await svc.get_class(class_id)
+    if not course_class:
+        raise HTTPException(status_code=404, detail="Class not found")
+
+    await ensure_class_manager(db, current_user, class_id)
+
+    result = await svc.update_recording_link(
+        class_id, data.recording_platform, data.recording_url
+    )
+
+    await AuditService(db).log_action(
+        actor_user=current_user,
+        action="course_class_recording_link_updated",
+        entity_type="course_class",
+        entity_id=class_id,
+        entity_label=course_class["name"],
+        request=request,
+        metadata={
+            "recording_platform": data.recording_platform,
+            "cleared": not bool((data.recording_url or "").strip()),
+        },
     )
     return result
 

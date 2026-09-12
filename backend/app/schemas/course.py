@@ -155,6 +155,17 @@ class TeacherBrief(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ReorderRequest(BaseModel):
+    """
+    PATCH /courses/{course_id}/modules/order y /courses/modules/{module_id}/lessons/order.
+
+    `ordered_ids` es la lista en el orden final (lo que envía el drag & drop). El backend
+    reescribe `sort_order` como 0..n-1; lo que no venga en la lista queda detrás, en su
+    orden actual, así que una lista parcial nunca borra ni pierde elementos.
+    """
+    ordered_ids: list[UUID] = Field(..., min_length=1)
+
+
 class ModuleCreate(BaseModel):
     """POST /modules request body."""
     course_id: UUID

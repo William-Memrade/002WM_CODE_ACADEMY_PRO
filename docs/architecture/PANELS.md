@@ -15,7 +15,8 @@
 | Actividad Reciente | Últimos audit logs | `audit_logs` |
 
 ### Módulos
-- **Gestión Cursos**: CRUD + activar/desactivar, asignar docente
+- **Gestión Cursos**: ✅ CRUD + activar/desactivar, **docente asignado** (selector en alta y edición, `PUT /courses/{id}` con `teacher_id`) y acceso directo al **temario** (`/admin/courses/{id}/curriculum`)
+- **Gestión Clases**: ✅ `/admin/classes` — listado con filtros, enlaces (clase + grabación) y **alta de clase desde este menú** eligiendo curso y docente (`useCreateClass`); el alta dentro del curso sigue existiendo
 - **Gestión Docentes**: Crear, editar, desactivar
 - **Gestión Alumnos**: Listar, bloquear, ver progreso
 - **Gestión Pagos**: Pendientes, aprobar, rechazar con vista de comprobante
@@ -41,9 +42,9 @@
 
 ### Módulos
 - **Mis Cursos**: ✅ `/teacher/courses` — cursos que imparte (titular o con clase asignada) con conteos reales (módulos, lecciones, clases, alumnos) y progreso medio
-- **Gestión Temario**: ✅ `/teacher/courses/{id}/curriculum` — alta, edición y borrado de módulos y lecciones; el backend exige ser docente del curso (`ensure_course_manager`)
+- **Gestión Temario**: ✅ `/teacher/courses/{id}/curriculum` — alta, edición y borrado de módulos y lecciones, y **orden por arrastre** (⠿ o ↑ ↓, `sort_order` 0..n-1); el backend exige ser docente del curso (`ensure_course_manager`). El mismo editor se monta en `/admin/courses/{id}/curriculum` para administración
 - **Alumnos**: ✅ `/teacher/students` — inscritos en sus clases, con edición del progreso (0-100 %); sin clase asignada el progreso se ve pero no se edita
-- **Clases en Vivo**: ✅ `/teacher/classes` — CRUD con link de reunión y asistencia
+- **Clases en Vivo**: ✅ `/teacher/classes` — CRUD con link de reunión, **grabación** y asistencia; ambos enlaces los ve el alumno inscrito
 - **Subir Videos**: ⏳ pendiente (no hay almacenamiento de vídeo)
 - **Historial Cambios**: ⏳ backend sí (content versioning), sin UI
 - ⏳ Calificar alumnos, estrellas y destacados (tablas `student_ratings`/`reviews` creadas, sin endpoints)
@@ -63,7 +64,7 @@
 
 ### Módulos
 - **Catálogo**: Buscar, filtrar, ver detalle de cursos
-- **Mis Cursos**: ✅ `/student/courses` — inscripciones activas con la barra de progreso que escribe su docente
+- **Mis Cursos**: ✅ `/student/courses` — una tarjeta por inscripción con el estado del ciclo: *pendiente de confirmación* (comprobante subido), *en espera de asignación de clase* (pago confirmado sin clase), *activo* (clase, horario, enlace de clase, grabación y barra de progreso) o *rechazado* con el motivo
 - ⏳ **Aula Virtual** (lecciones, vídeos, progreso por lección)
 - ✅ **Pagos**: Subir comprobante, estado, historial
 - ⏳ **Perfil**: Editar datos, avatar, ver estrellas, estado destacado

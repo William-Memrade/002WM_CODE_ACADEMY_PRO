@@ -18,6 +18,8 @@ export interface StudentProgressRow {
   progress_percentage: number;
   completed_at: string | null;
   status: string;
+  course_slug?: string | null;
+  enrolled_at?: string | null;
 }
 
 export function useStudentProgress() {

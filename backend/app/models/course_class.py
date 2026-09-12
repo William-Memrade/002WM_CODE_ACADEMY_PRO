@@ -50,6 +50,10 @@ class CourseClass(BaseModel, SoftDeleteMixin):
     status: Mapped[str] = mapped_column(String(20), default="active")
     meeting_platform: Mapped[str | None] = mapped_column(String(50))
     meeting_url: Mapped[str | None] = mapped_column(String(500))
+    # Grabación de la sesión: la publica el docente titular de la clase (o un admin).
+    recording_platform: Mapped[str | None] = mapped_column(String(50))
+    recording_url: Mapped[str | None] = mapped_column(String(500))
+    recording_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     # Relationships
     course: Mapped["Course"] = relationship(back_populates="classes")

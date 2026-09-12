@@ -55,7 +55,12 @@ class Course(BaseModel, SoftDeleteMixin):
     # Relationships
     category: Mapped["Category | None"] = relationship(back_populates="courses")
     teacher: Mapped["Teacher | None"] = relationship(back_populates="courses", foreign_keys=[teacher_id])
-    modules: Mapped[list["Module"]] = relationship(back_populates="course", order_by="Module.sort_order")
+    modules: Mapped[list["Module"]] = relationship(
+        back_populates="course",
+        order_by="Module.sort_order",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
     enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="course")
     live_classes: Mapped[list["LiveClass"]] = relationship(back_populates="course")
     classes: Mapped[list["CourseClass"]] = relationship(back_populates="course")
@@ -72,7 +77,12 @@ class Module(BaseModel):
     is_published: Mapped[bool] = mapped_column(Boolean, default=False)
 
     course: Mapped["Course"] = relationship(back_populates="modules")
-    lessons: Mapped[list["Lesson"]] = relationship(back_populates="module", order_by="Lesson.sort_order")
+    lessons: Mapped[list["Lesson"]] = relationship(
+        back_populates="module",
+        order_by="Lesson.sort_order",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
 
 class Lesson(BaseModel):

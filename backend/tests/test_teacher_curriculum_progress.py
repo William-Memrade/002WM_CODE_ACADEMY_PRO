@@ -32,19 +32,8 @@ pytestmark = pytest.mark.integration
 
 
 # ── Utillaje: conexión de superusuario para montar y limpiar ─────────────────
-
-@pytest_asyncio.fixture
-async def superuser_session(prepared_database: str):
-    """Sesión contra la base de pruebas como superusuario (sin RLS)."""
-    engine = create_async_engine(support.TEST_DATABASE_URL, echo=False, poolclass=NullPool)
-    factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-    try:
-        async with factory() as session:
-            yield session
-            await session.rollback()
-    finally:
-        await engine.dispose()
-
+# `superuser_session` vive en conftest.py: la comparten las pruebas de temario y las
+# del ciclo de inscripción.
 
 async def _seeded_ids(session: AsyncSession) -> dict:
     """IDs de los usuarios demo y del primer curso del docente del seed."""
@@ -435,3 +424,176 @@ async def test_progreso_de_un_alumno_sin_inscripcion_da_404(api_client, teacher_
         headers=teacher_course["admin_headers"],
     )
     assert response.status_code == 404
+
+
+# ── Orden del temario (sort_order, drag & drop del editor) ────────────────────
+
+async def _modules(api_client, course_id, headers) -> list[dict]:
+    response = await api_client.get(f"/api/v1/courses/{course_id}/modules", headers=headers)
+    assert response.status_code == 200, response.text
+    return response.json()["items"]
+
+
+async def _new_module(api_client, course_id, headers, title: str) -> str:
+    response = await api_client.post(
+        f"/api/v1/courses/{course_id}/modules",
+        json={"course_id": str(course_id), "title": title},
+        headers=headers,
+    )
+    assert response.status_code == 201, response.text
+    return response.json()["id"]
+
+
+async def _new_lesson(api_client, module_id, headers, title: str) -> str:
+    response = await api_client.post(
+        f"/api/v1/courses/modules/{module_id}/lessons",
+        json={"module_id": str(module_id), "title": title},
+        headers=headers,
+    )
+    assert response.status_code == 201, response.text
+    return response.json()["id"]
+
+
+async def test_el_orden_de_los_modulos_se_reescribe_de_cero_a_n(api_client, teacher_course):
+    """
+    El editor manda la lista en su orden final; el backend reescribe `sort_order` 0..n-1.
+
+    `sort_order` es orden, no identidad: por eso se puede invertir el temario sin tocar
+    los ids ni renumerar a mano.
+    """
+    course_id = teacher_course["course_id"]
+    headers = teacher_course["teacher_headers"]
+    original = [m["id"] for m in await _modules(api_client, course_id, headers)]
+
+    extra = []
+    for index in range(max(0, 3 - len(original))):
+        extra.append(await _new_module(api_client, course_id, headers, f"Módulo orden {index}"))
+
+    try:
+        current = [m["id"] for m in await _modules(api_client, course_id, headers)]
+        assert len(current) >= 3
+        reversed_ids = list(reversed(current))
+
+        response = await api_client.patch(
+            f"/api/v1/courses/{course_id}/modules/order",
+            json={"ordered_ids": reversed_ids},
+            headers=headers,
+        )
+        assert response.status_code == 200, response.text
+        items = response.json()["items"]
+        assert [m["id"] for m in items] == reversed_ids
+        assert [m["sort_order"] for m in items] == list(range(len(reversed_ids)))
+
+        # Persiste: una lectura nueva devuelve el mismo orden.
+        again = await _modules(api_client, course_id, headers)
+        assert [m["id"] for m in again] == reversed_ids
+    finally:
+        if original:
+            await api_client.patch(
+                f"/api/v1/courses/{course_id}/modules/order",
+                json={"ordered_ids": original},
+                headers=headers,
+            )
+        for module_id in extra:
+            await api_client.delete(f"/api/v1/courses/modules/{module_id}", headers=headers)
+
+
+async def test_una_leccion_nueva_puede_quedar_primera_sin_renumerar(api_client, teacher_course):
+    """
+    Caso del usuario: añadir una lección que debe ir al inicio.
+
+    El alta no calcula el orden (todas nacen con 0), así que basta con reordenar la lista
+    enviando la nueva primero: queda en 0 y el resto se desplaza solo.
+    """
+    course_id = teacher_course["course_id"]
+    headers = teacher_course["teacher_headers"]
+
+    module_id = await _new_module(api_client, course_id, headers, "Módulo reordenable")
+    try:
+        first = await _new_lesson(api_client, module_id, headers, "Lección A")
+        second = await _new_lesson(api_client, module_id, headers, "Lección B")
+        newcomer = await _new_lesson(api_client, module_id, headers, "Lección al inicio")
+
+        response = await api_client.patch(
+            f"/api/v1/courses/modules/{module_id}/lessons/order",
+            json={"ordered_ids": [newcomer, first, second]},
+            headers=headers,
+        )
+        assert response.status_code == 200, response.text
+        lessons = next(
+            m["lessons"] for m in response.json()["items"] if m["id"] == module_id
+        )
+        assert [l["id"] for l in lessons] == [newcomer, first, second]
+        assert [l["sort_order"] for l in lessons] == [0, 1, 2]
+    finally:
+        await api_client.delete(f"/api/v1/courses/modules/{module_id}", headers=headers)
+
+
+async def test_reordenar_con_un_id_ajeno_da_400(api_client, teacher_course):
+    """Un id que no es del curso se rechaza: no se reordena a ciegas."""
+    course_id = teacher_course["course_id"]
+    headers = teacher_course["teacher_headers"]
+
+    response = await api_client.patch(
+        f"/api/v1/courses/{course_id}/modules/order",
+        json={"ordered_ids": [str(uuid.uuid4())]},
+        headers=headers,
+    )
+    assert response.status_code == 400
+
+    module_id = await _new_module(api_client, course_id, headers, "Módulo para orden")
+    try:
+        response = await api_client.patch(
+            f"/api/v1/courses/modules/{module_id}/lessons/order",
+            json={"ordered_ids": [str(uuid.uuid4())]},
+            headers=headers,
+        )
+        assert response.status_code == 400
+    finally:
+        await api_client.delete(f"/api/v1/courses/modules/{module_id}", headers=headers)
+
+
+async def test_solo_admin_y_docente_reordenan_el_temario(api_client, teacher_course):
+    """El alumno no mueve el temario del curso."""
+    course_id = teacher_course["course_id"]
+    response = await api_client.patch(
+        f"/api/v1/courses/{course_id}/modules/order",
+        json={"ordered_ids": [str(uuid.uuid4())]},
+        headers=teacher_course["student_headers"],
+    )
+    assert response.status_code == 403
+
+
+async def test_borrar_un_modulo_con_lecciones_lo_hace_en_cascada(
+    api_client, teacher_course, superuser_session
+):
+    """
+    Regresión: borrar un módulo que tiene lecciones dentro.
+
+    El ORM intentaba `UPDATE lessons SET module_id = NULL` (violación de NOT NULL) en vez
+    de dejar que la FK borre en cascada, así que el borrado desde el editor devolvía 500.
+    """
+    from sqlalchemy import text
+
+    course_id = teacher_course["course_id"]
+    headers = teacher_course["teacher_headers"]
+
+    module_id = await _new_module(api_client, course_id, headers, "Módulo con lecciones")
+    lesson_ids = [
+        await _new_lesson(api_client, module_id, headers, f"Lección {index}")
+        for index in (1, 2)
+    ]
+
+    response = await api_client.delete(f"/api/v1/courses/modules/{module_id}", headers=headers)
+    assert response.status_code == 204, response.text
+
+    remaining = (
+        await superuser_session.execute(
+            text("SELECT count(*) FROM lessons WHERE id = ANY(:ids)"),
+            {"ids": lesson_ids},
+        )
+    ).scalar_one()
+    assert remaining == 0, "las lecciones del módulo se van con él"
+
+    module_ids = [m["id"] for m in await _modules(api_client, course_id, headers)]
+    assert module_id not in module_ids

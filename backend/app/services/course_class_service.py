@@ -5,7 +5,7 @@ Business logic for course classes and attendance.
 
 import re
 import uuid
-from datetime import time
+from datetime import datetime, time, timezone
 from uuid import UUID
 
 from sqlalchemy import func as sa_func, select as sa_select
@@ -287,6 +287,30 @@ class CourseClassService:
         await self.repo.update(course_class)
         return await self._class_to_dict(course_class)
 
+    async def update_recording_link(
+        self, class_id: UUID, recording_platform: str | None, recording_url: str | None
+    ) -> dict | None:
+        """
+        Publica (o borra) la grabación de la clase.
+
+        `recording_url` vacío o None borra la grabación: el docente deja de exponer un
+        enlace que ya no sirve sin tocar el resto de la clase.
+        """
+        course_class = await self.repo.get_by_id_full(class_id)
+        if not course_class:
+            return None
+
+        url = (recording_url or "").strip() or None
+        course_class.recording_url = url
+        course_class.recording_platform = (
+            ((recording_platform or "").strip() or None) if url else None
+        )
+        course_class.recording_updated_at = (
+            datetime.now(timezone.utc) if url else None
+        )
+        await self.repo.update(course_class)
+        return await self._class_to_dict(course_class)
+
     async def get_class(self, class_id: UUID) -> dict | None:
         """Get class detail."""
         course_class = await self.repo.get_by_id_full(class_id)
@@ -406,6 +430,12 @@ class CourseClassService:
             "status": course_class.status,
             "meeting_platform": course_class.meeting_platform,
             "meeting_url": course_class.meeting_url,
+            "recording_platform": course_class.recording_platform,
+            "recording_url": course_class.recording_url,
+            "recording_updated_at": (
+                course_class.recording_updated_at.isoformat()
+                if course_class.recording_updated_at else None
+            ),
             "created_at": course_class.created_at.isoformat() if course_class.created_at else None,
             "updated_at": course_class.updated_at.isoformat() if course_class.updated_at else None,
             "deleted_at": course_class.deleted_at.isoformat() if course_class.deleted_at else None,
@@ -414,6 +444,7 @@ class CourseClassService:
             "global_max": global_max,
             "course_title": course_title,
             "has_meeting_link": bool(course_class.meeting_url),
+            "has_recording": bool(course_class.recording_url),
         }
 
     async def _class_to_dict_public(self, course_class: CourseClass) -> dict:

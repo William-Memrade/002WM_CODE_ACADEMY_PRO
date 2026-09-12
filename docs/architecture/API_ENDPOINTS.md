@@ -78,8 +78,9 @@ Query: `?category={slug}&level={level}&search={text}&sort_by={field}&page={n}&pe
 |--------|------|-----|-------------|
 | GET | `/courses/{course_id}/modules` | 👨🏫🔑 | Temario completo (incluye `content` de cada lección) |
 | POST | `/courses/{course_id}/modules` | 👨🏫🔑 | Crear módulo |
+| PATCH | `/courses/{course_id}/modules/order` | 👨🏫🔑 | Reordenar módulos: `{ "ordered_ids": [...] }` reescribe `sort_order` 0..n-1 |
 | PUT | `/courses/modules/{id}` | 👨🏫🔑 | Editar (título, descripción, orden, publicado) |
-| DELETE | `/courses/modules/{id}` | 👨🏫🔑 | Eliminar (arrastra sus lecciones) |
+| DELETE | `/courses/modules/{id}` | 👨🏫🔑 | Eliminar (arrastra sus lecciones: `ON DELETE CASCADE` + `passive_deletes` en el modelo) |
 
 ---
 
@@ -88,6 +89,7 @@ Query: `?category={slug}&level={level}&search={text}&sort_by={field}&page={n}&pe
 | Método | Ruta | Rol | Descripción |
 |--------|------|-----|-------------|
 | POST | `/courses/modules/{module_id}/lessons` | 👨🏫🔑 | Crear lección |
+| PATCH | `/courses/modules/{module_id}/lessons/order` | 👨🏫🔑 | Reordenar lecciones del módulo (`{ "ordered_ids": [...] }`) |
 | PUT | `/courses/lessons/{id}` | 👨🏫🔑 | Editar (incluye `content`, `is_published`) |
 | DELETE | `/courses/lessons/{id}` | 👨🏫🔑 | Eliminar |
 | POST | `/courses/lessons/{id}/recorded-class` | 👨🏫 | ⏳ Clases grabadas (sin storage de vídeo) |
@@ -104,12 +106,17 @@ Query: `?category={slug}&level={level}&search={text}&sort_by={field}&page={n}&pe
 | PATCH | `/course-classes/{class_id}` | 🔑🤝 | Editar clase |
 | PATCH | `/course-classes/{class_id}/assign-teacher` | 🔑🤝 | Asignar docente |
 | PATCH | `/course-classes/{class_id}/meeting-link` | 👨🏫🔑 | Enlace de la clase en vivo |
+| PATCH | `/course-classes/{class_id}/recording-link` | 👨🏫🔑 | Grabación de la clase (`recording_url`, `recording_platform`; vacío = retirarla) |
 | GET | `/course-classes/{class_id}/students` | 👨🏫🔑 | Alumnos de la clase (con `progress_percentage`) |
 | PATCH | `/course-classes/{class_id}/students/{student_id}/progress` | 👨🏫🔑 | Marcar el progreso del alumno (0-100) |
 | GET | `/teachers/me/classes` | 👨🏫 | Mis clases |
 
 Al guardar `progress_percentage = 100` el backend sella `completed_at`; si el
 porcentaje baja otra vez, se limpia (no es un estado terminal).
+
+La grabación la puede publicar el docente titular de la clase o administración; el
+alumno inscrito la recibe en `GET /students/me/classes` (campo `recording_url`) y la
+ve en `/student/courses`.
 
 ---
 
@@ -153,7 +160,7 @@ porcentaje baja otra vez, se limpia (no es un estado terminal).
 |--------|------|-----|-------------|
 | GET | `/me/classes` | 🎓 | Mis clases (con docente, horario y enlace) |
 | GET | `/me/attendance` | 🎓 | Mi asistencia |
-| GET | `/me/progress` | 🎓 | Mi progreso por curso (sólo lectura: lo escribe el docente) |
+| GET | `/me/progress` | 🎓 | Mis inscripciones con estado del ciclo de pago + progreso (`payment_approved` = en espera de clase, `active` = con clase). Es la fuente de `/student/courses` |
 | GET | `/progress/course/{id}` | 🎓 | ⏳ Progreso detallado de un curso |
 | GET | `/profile` | 🎓 | ⏳ Mi perfil |
 | PUT | `/profile` | 🎓 | ⏳ Editar perfil |
