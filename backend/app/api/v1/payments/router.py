@@ -423,6 +423,43 @@ async def admin_list_payments(
 # ── Admin: Approve Payment ────────────────────────────────────────────────────
 
 
+async def _maybe_notify_admins_course_needs_class(db, course_id: UUID) -> None:
+    """
+    If a course has exactly 5 active/payment_approved enrollments and zero active
+    classes, notify admins that they need to create a class.
+    """
+    from app.models.course_class import CourseClass
+    from app.models.payment import Enrollment
+    from app.services.notification_service import notify_admins_course_needs_class
+    from sqlalchemy import select as sa_select
+
+    active_enrollments_result = await db.execute(
+        sa_select(func.count()).select_from(Enrollment).where(
+            Enrollment.course_id == course_id,
+            Enrollment.status.in_(["active", "payment_approved"]),
+        )
+    )
+    active_enrollments = active_enrollments_result.scalar() or 0
+
+    active_classes_result = await db.execute(
+        sa_select(func.count()).select_from(CourseClass).where(
+            CourseClass.course_id == course_id,
+            CourseClass.status == "active",
+        )
+    )
+    active_classes = active_classes_result.scalar() or 0
+
+    if active_enrollments == 5 and active_classes == 0:
+        # Need to refetch the course title. The db here is the RLS session; reading
+        # the course is allowed for the admin caller.
+        from app.models.course import Course
+        course_result = await db.execute(
+            sa_select(Course.title).where(Course.id == course_id)
+        )
+        course_title = course_result.scalar_one_or_none() or "Curso"
+        await notify_admins_course_needs_class(db, course_id, course_title)
+
+
 @router.post("/{payment_id}/approve")
 async def approve_payment(
     payment_id: UUID,
@@ -532,6 +569,9 @@ async def approve_payment(
 
         await db.commit()
 
+        # Notify admins if this course now has 5 active enrollments and no classes.
+        await _maybe_notify_admins_course_needs_class(db, payment.course_id)
+
         # Invalidate admin metrics cache
         from app.core.cache import cache
         await cache.delete("admin:metrics")
@@ -630,6 +670,9 @@ async def approve_payment(
     )
 
     await db.commit()
+
+    # Notify admins if this course now has 5 active enrollments and no classes.
+    await _maybe_notify_admins_course_needs_class(db, payment.course_id)
 
     # Invalidate admin metrics cache
     from app.core.cache import cache

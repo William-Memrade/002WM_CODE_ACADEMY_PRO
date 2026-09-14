@@ -5,12 +5,19 @@ Users, Roles, and UserRoles ORM models.
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, BaseModel, SoftDeleteMixin, TimestampMixin
+
+if TYPE_CHECKING:
+    from app.models.course import Course
+    from app.models.course_class import CourseClass
+    from app.models.notification import Notification
+    from app.models.payment import Enrollment
 
 
 class Role(Base, TimestampMixin):
@@ -71,6 +78,7 @@ class User(BaseModel, SoftDeleteMixin):
     enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="student", foreign_keys="[Enrollment.student_id]")
     teacher_profile: Mapped["Teacher"] = relationship(back_populates="user", uselist=False)
     student_profile: Mapped["Student"] = relationship(back_populates="user", uselist=False)
+    notifications: Mapped[list["Notification"]] = relationship(back_populates="user", lazy="noload")
 
     @property
     def full_name(self) -> str:

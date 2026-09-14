@@ -51,6 +51,16 @@ TEMPLATES = {
         "subject": "Clase en vivo en 1 hora - {class_title}",
         "body": "Hola {first_name},\n\nRecordatorio: la clase '{class_title}' comienza en 1 hora.\n\nLink: {meeting_url}",
     },
+    "admin_alert_course_needs_class": {
+        "subject": "Curso '{course_title}' necesita una clase",
+        "body": (
+            "Hola {first_name},\n\n"
+            "El curso '{course_title}' ha alcanzado 5 inscripciones activas y no tiene "
+            "ninguna clase activa.\n\n"
+            "Por favor, creá una clase y asigná a los estudiantes lo antes posible.\n\n"
+            "ID del curso: {course_id}"
+        ),
+    },
 }
 
 

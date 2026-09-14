@@ -195,7 +195,7 @@ class CourseService:
         """Temario de un curso tal como lo edita el docente (incluye `content`)."""
         modules = await self.module_repo.get_by_course(course_id)
         return [
-            self._module_to_dict(m, lessons=[self._lesson_to_dict(l, include_content=True) for l in m.lessons])
+            self._module_to_dict(m, lessons=[self._lesson_to_dict(lesson, include_content=True) for lesson in m.lessons])
             for m in modules
         ]
 
@@ -290,7 +290,7 @@ class CourseService:
         un id ajeno al módulo se rechaza.
         """
         lessons = await self.lesson_repo.get_by_module(module_id)
-        by_id = {str(l.id): l for l in lessons}
+        by_id = {str(l.id): l for lesson in lessons}
         unknown = [str(i) for i in ordered_ids if str(i) not in by_id]
         if unknown:
             raise ValueError(f"Lessons not in this module: {', '.join(unknown)}")
@@ -310,7 +310,7 @@ class CourseService:
         if course_id is None:
             return [
                 self._lesson_to_dict(l, include_content=True)
-                for l in await self.lesson_repo.get_by_module(module_id)
+                for lesson in await self.lesson_repo.get_by_module(module_id)
             ]
         # Igual que `reorder_modules`: se devuelve el temario completo ya ordenado.
         return await self.list_modules(course_id)
@@ -496,11 +496,66 @@ class CourseService:
             )
             enrolled = enrolled_result.scalar() or 0
             total_available += max(0, global_max - enrolled)
+
+        has_available_classes = total_available > 0
+        needs_more_classes = len(classes) == 0 or not has_available_classes
+
+        # Nunca mostrar 0 cupos: cuando no hay clases o están llenas,
+        # proyectar el cupo de la próxima clase que el admin debe crear.
+        display_available_slots = total_available if total_available > 0 else global_max
+
         return {
             "total_classes_count": len(classes),
-            "total_available_slots": total_available,
-            "has_available_classes": total_available > 0,
+            "total_available_slots": display_available_slots,
+            "raw_available_slots": total_available,
+            "has_available_classes": has_available_classes,
+            "needs_more_classes": needs_more_classes,
         }
+
+    async def _get_public_classes_for_course(self, course_id: uuid.UUID) -> list[dict]:
+        """Active classes of a course formatted for public course detail."""
+        from app.models.course_class import CourseClass
+        from app.models.user import Teacher
+        from sqlalchemy.orm import selectinload
+
+        result = await self.db.execute(
+            sa_select(CourseClass)
+            .options(
+                selectinload(CourseClass.teacher).selectinload(Teacher.user),
+            )
+            .where(
+                CourseClass.course_id == course_id,
+                CourseClass.status == "active",
+            )
+            .order_by(CourseClass.created_at.asc())
+        )
+        classes = result.scalars().all()
+        global_max = await self._get_global_max_students()
+        items = []
+        for cls in classes:
+            enrolled_result = await self.db.execute(
+                sa_select(sa_func.count(Enrollment.id)).where(
+                    Enrollment.course_class_id == cls.id,
+                    Enrollment.status == "active",
+                )
+            )
+            enrolled = enrolled_result.scalar() or 0
+            available = max(0, global_max - enrolled)
+            teacher_name = None
+            if cls.teacher and cls.teacher.user:
+                teacher_name = (
+                    f"{cls.teacher.user.first_name} {cls.teacher.user.last_name}".strip()
+                )
+            items.append({
+                "id": str(cls.id),
+                "name": cls.name,
+                "teacher_name": teacher_name,
+                "schedule_info": cls.schedule_info,
+                "available_slots": available if available > 0 else global_max,
+                "is_full": available == 0,
+                "global_max": global_max,
+            })
+        return items
 
     # ── Serialization Helpers ───────────────────────────────────────────
 
@@ -539,7 +594,9 @@ class CourseService:
             "available_slots": max(0, global_max - enrolled) if enrolled is not None else global_max,
             "total_classes_count": class_summary["total_classes_count"],
             "total_available_slots": class_summary["total_available_slots"],
+            "raw_available_slots": class_summary["raw_available_slots"],
             "has_available_classes": class_summary["has_available_classes"],
+            "needs_more_classes": class_summary["needs_more_classes"],
             "teacher": {
                 "id": str(course.teacher.id),
                 "first_name": course.teacher.user.first_name,
@@ -556,6 +613,7 @@ class CourseService:
         detail = await self._course_to_list_item(course)
         detail["description"] = course.description
         detail["created_at"] = course.created_at.isoformat() if course.created_at else None
+        detail["available_classes"] = await self._get_public_classes_for_course(course.id)
         detail["modules"] = [
             {
                 "id": str(m.id),
@@ -572,7 +630,7 @@ class CourseService:
                         "is_free": l.is_free,
                         "sort_order": l.sort_order,
                     }
-                    for l in sorted(m.lessons, key=lambda x: x.sort_order)
+                    for lesson in sorted(m.lessons, key=lambda x: x.sort_order)
                 ],
             }
             for m in sorted(course.modules, key=lambda x: x.sort_order)

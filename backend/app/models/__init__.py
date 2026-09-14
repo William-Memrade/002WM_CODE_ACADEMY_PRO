@@ -10,6 +10,7 @@ from app.models.course_class import CourseClass, AttendanceRecord
 from app.models.payment import Enrollment, Payment, PaymentProof, PaymentSettings
 from app.models.audit import AuditLog
 from app.models.system import SystemSetting, FeatureFlag
+from app.models.notification import Notification
 
 __all__ = [
     "Base",
@@ -34,4 +35,5 @@ __all__ = [
     "AuditLog",
     "SystemSetting",
     "FeatureFlag",
+    "Notification",
 ]

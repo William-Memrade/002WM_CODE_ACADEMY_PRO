@@ -402,3 +402,268 @@ async def test_rechazar_un_pago_no_rompe_la_inscripcion_de_quien_ya_esta_cursand
     assert len(rows) == 1
     assert rows[0]["status"] == "active"
     assert str(rows[0]["course_class_id"]) == course_class["id"]
+
+
+# ── Control de acceso al temario ───────────────────────────────────────────────────
+
+async def test_usuario_no_autenticado_ve_solo_el_primer_modulo(
+    api_client, pending_payment
+):
+    """El detalle público siempre muestra todos los módulos, pero el endpoint /access indica
+    que un visitante anónimo no debe desbloquear el temario completo."""
+    response = await api_client.get(
+        f"/api/v1/courses/{pending_payment['course_id']}/access"
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["can_view_full_syllabus"] is False
+    assert data["enrollment_status"] is None
+    assert data["role_for_course"] is None
+
+
+async def test_alumno_con_pago_aprobado_ve_temario_completo(
+    api_client, pending_payment
+):
+    """Una inscripción payment_approved (sin clase todavía) ya permite ver el temario."""
+    await api_client.post(
+        f"/api/v1/payments/{pending_payment['payment_id']}/approve",
+        json={},
+        headers=pending_payment["admin_headers"],
+    )
+    response = await api_client.get(
+        f"/api/v1/courses/{pending_payment['course_id']}/access",
+        headers=pending_payment["student_headers"],
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["can_view_full_syllabus"] is True
+    assert data["enrollment_status"] == "payment_approved"
+    assert data["role_for_course"] == "student"
+
+
+async def test_alumno_sin_inscripcion_no_ve_temario_completo(
+    api_client, pending_payment, superuser_session
+):
+    """Un alumno autenticado pero sin inscripción paga para este curso no ve todo el temario."""
+    response = await api_client.get(
+        f"/api/v1/courses/{pending_payment['course_id']}/access",
+        headers=pending_payment["student_headers"],
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["can_view_full_syllabus"] is False
+    assert data["enrollment_status"] is None
+    assert data["role_for_course"] is None
+
+
+async def test_admin_y_docente_ven_el_temario_completo(
+    api_client, pending_payment
+):
+    """Admin y teacher tienen acceso total al temario del curso."""
+    admin_access = await api_client.get(
+        f"/api/v1/courses/{pending_payment['course_id']}/access",
+        headers=pending_payment["admin_headers"],
+    )
+    assert admin_access.status_code == 200
+    assert admin_access.json()["can_view_full_syllabus"] is True
+    assert admin_access.json()["role_for_course"] == "admin"
+
+    teacher_access = await api_client.get(
+        f"/api/v1/courses/{pending_payment['course_id']}/access",
+        headers=pending_payment["teacher_headers"],
+    )
+    assert teacher_access.status_code == 200
+    assert teacher_access.json()["can_view_full_syllabus"] is True
+    assert teacher_access.json()["role_for_course"] == "teacher"
+
+
+# ── Cupos por clase ─────────────────────────────────────────────────────────────────
+
+async def test_el_cupo_global_por_clase_es_20(superuser_session):
+    """La configuración global máxima de alumnos por clase debe ser 20."""
+    value = (
+        await superuser_session.execute(
+            text("SELECT value FROM system_settings WHERE key = 'global_max_students_per_class'")
+        )
+    ).scalar()
+    assert int(value) == 20
+
+
+async def test_cuando_una_clase_se_llena_el_contador_nunca_es_cero(
+    api_client, pending_payment, superuser_session
+):
+    """Una clase llena no debe mostrar 0 cupos; debe proyectar la próxima clase."""
+    course_class = await _create_class(api_client, pending_payment)
+
+    # Llenar la clase hasta 20 alumnos usando inserciones directas (más rápido que
+    # aprobar 20 pagos por HTTP) para forzar el escenario de "clase completa".
+    student_emails = []
+    for i in range(20):
+        email = f"filler_student_{i}_{uuid.uuid4().hex[:6]}@test.local"
+        student_emails.append(email)
+        user_id = (
+            await superuser_session.execute(
+                text(
+                    """
+                    INSERT INTO users (email, password_hash, first_name, last_name, status)
+                    VALUES (:email, 'x', 'Filler', 'Student', 'active')
+                    ON CONFLICT (email) DO NOTHING
+                    RETURNING id
+                    """
+                ),
+                {"email": email},
+            )
+        ).scalar_one_or_none()
+        if user_id is None:
+            user_id = (
+                await superuser_session.execute(
+                    text("SELECT id FROM users WHERE email = :email"),
+                    {"email": email},
+                )
+            ).scalar_one()
+        role_id = (
+            await superuser_session.execute(
+                text("SELECT id FROM roles WHERE name = 'student'")
+            )
+        ).scalar_one()
+        await superuser_session.execute(
+            text(
+                """
+                INSERT INTO user_roles (user_id, role_id)
+                VALUES (:uid, :rid)
+                ON CONFLICT DO NOTHING
+                """
+            ),
+            {"uid": user_id, "rid": role_id},
+        )
+        await superuser_session.execute(
+            text(
+                """
+                INSERT INTO enrollments (student_id, course_id, course_class_id, status, approved_at)
+                VALUES (:uid, :cid, :ccid, 'active', NOW())
+                ON CONFLICT (student_id, course_id) DO NOTHING
+                """
+            ),
+            {"uid": user_id, "cid": pending_payment["course_id"], "ccid": course_class["id"]},
+        )
+    await superuser_session.commit()
+
+    detail = await api_client.get(
+        f"/api/v1/courses/{pending_payment['course_id']}"
+    )
+    assert detail.status_code == 200, detail.text
+    data = detail.json()
+    assert data["needs_more_classes"] is True
+    assert data["has_available_classes"] is False
+    assert data["total_available_slots"] == 20
+    assert data["raw_available_slots"] == 0
+    assert len(data["available_classes"]) == 1
+    assert data["available_classes"][0]["is_full"] is True
+    assert data["available_classes"][0]["available_slots"] == 20
+    assert data["available_classes"][0]["global_max"] == 20
+
+
+# ── Notificación a admins ──────────────────────────────────────────────────────────
+
+async def test_se_notifica_a_admins_cuando_un_curso_llega_a_5_inscritos_sin_clases(
+    api_client, tokens, superuser_session, pending_payment
+):
+    """Al 5to pago aprobado sin clases activas, los admins reciben notificación y email encolado."""
+    admin_user_id = (
+        await superuser_session.execute(
+            text("SELECT id FROM users WHERE email = :email"),
+            {"email": support.DEMO_USERS["admin"][0]},
+        )
+    ).scalar_one()
+
+    # Crear 5 alumnos ficticios con pagos pendientes para el mismo curso.
+    payment_ids = []
+    for i in range(5):
+        email = f"notify_student_{i}_{uuid.uuid4().hex[:6]}@test.local"
+        user_id = (
+            await superuser_session.execute(
+                text(
+                    """
+                    INSERT INTO users (email, password_hash, first_name, last_name, status)
+                    VALUES (:email, 'x', 'Notify', 'Student', 'active')
+                    RETURNING id
+                    """
+                ),
+                {"email": email},
+            )
+        ).scalar_one()
+        role_id = (
+            await superuser_session.execute(
+                text("SELECT id FROM roles WHERE name = 'student'")
+            )
+        ).scalar_one()
+        await superuser_session.execute(
+            text(
+                """
+                INSERT INTO user_roles (user_id, role_id) VALUES (:uid, :rid)
+                ON CONFLICT DO NOTHING
+                """
+            ),
+            {"uid": user_id, "rid": role_id},
+        )
+        payment_id = (
+            await superuser_session.execute(
+                text(
+                    """
+                    INSERT INTO payments (student_id, course_id, amount, currency,
+                                          payment_method, status)
+                    VALUES (:uid, :cid, 49.99, 'USD', 'bank_transfer', 'pending')
+                    RETURNING id
+                    """
+                ),
+                {"uid": user_id, "cid": pending_payment["course_id"]},
+            )
+        ).scalar_one()
+        payment_ids.append(str(payment_id))
+    await superuser_session.commit()
+
+    # Aprobar los primeros 4 no debe generar notificación.
+    for pid in payment_ids[:4]:
+        response = await api_client.post(
+            f"/api/v1/payments/{pid}/approve", json={}, headers=pending_payment["admin_headers"]
+        )
+        assert response.status_code == 200, response.text
+
+    notifications_before = (
+        await superuser_session.execute(
+            text("SELECT COUNT(*) FROM notifications WHERE user_id = :uid"),
+            {"uid": admin_user_id},
+        )
+    ).scalar()
+    assert notifications_before == 0
+
+    # Al aprobar el 5to se dispara la notificación.
+    response = await api_client.post(
+        f"/api/v1/payments/{payment_ids[4]}/approve", json={}, headers=pending_payment["admin_headers"]
+    )
+    assert response.status_code == 200, response.text
+
+    notifications_after = (
+        await superuser_session.execute(
+            text("SELECT COUNT(*) FROM notifications WHERE user_id = :uid"),
+            {"uid": admin_user_id},
+        )
+    ).scalar()
+    assert notifications_after == 1
+
+    email_jobs = (
+        await superuser_session.execute(
+            text(
+                "SELECT COUNT(*) FROM email_queue WHERE template_name = 'admin_alert_course_needs_class'"
+            )
+        )
+    ).scalar()
+    assert email_jobs >= 1
+
+    # Listar notificaciones como admin.
+    notifications_resp = await api_client.get(
+        "/api/v1/notifications", headers=pending_payment["admin_headers"]
+    )
+    assert notifications_resp.status_code == 200, notifications_resp.text
+    items = notifications_resp.json()["items"]
+    assert any("necesita una clase" in n["title"] for n in items)

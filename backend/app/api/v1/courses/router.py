@@ -11,7 +11,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.db.rls import get_rls_db
+from app.db.rls import get_rls_db, get_rls_db_optional
+from app.middlewares.auth import get_optional_user
 from app.middlewares.rbac import (
     ensure_course_manager,
     require_admin,
@@ -106,7 +107,98 @@ async def get_course(slug: str, db: AsyncSession = Depends(get_db)):
     return course
 
 
-# ── Admin Course CRUD ─────────────────────────────────────────────────────────
+@router.get("/{slug}/access")
+async def get_course_access(
+    slug: str,
+    current_user=Depends(get_optional_user),
+    db: AsyncSession = Depends(get_rls_db_optional),
+):
+    """
+    Auth-optional endpoint that tells the UI what the current user may see.
+
+    Returns whether the full syllabus is visible, the enrollment status for this
+    course (if any), and the role the user has with respect to the course.
+    """
+    from sqlalchemy import select as sa_select
+    from app.models.course_class import CourseClass
+    from app.models.payment import Enrollment
+    from app.models.user import Teacher
+
+    svc = CourseService(db)
+    try:
+        course_uuid = UUID(slug)
+        course = await svc.course_repo.get_by_id_full(course_uuid)
+    except ValueError:
+        course = await svc.course_repo.get_by_slug(slug)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+
+    # Unauthenticated users only see the first module.
+    if current_user is None:
+        return {
+            "can_view_full_syllabus": False,
+            "enrollment_status": None,
+            "role_for_course": None,
+        }
+
+    user_roles = set(current_user.role_names) if hasattr(current_user, "role_names") else set()
+
+    # Admins and coordinators always see everything.
+    if user_roles.intersection({"admin", "coordinator"}):
+        return {
+            "can_view_full_syllabus": True,
+            "enrollment_status": None,
+            "role_for_course": "admin" if "admin" in user_roles else "coordinator",
+        }
+
+    # Teachers see the full syllabus if they own the course or teach a class of it.
+    teacher = None
+    if "teacher" in user_roles:
+        teacher_result = await db.execute(
+            sa_select(Teacher).where(Teacher.user_id == current_user.id)
+        )
+        teacher = teacher_result.scalar_one_or_none()
+
+    is_course_teacher = (
+        teacher is not None
+        and str(course.teacher_id) == str(teacher.id)
+    )
+    teaches_a_class = False
+    if teacher is not None and not is_course_teacher:
+        class_result = await db.execute(
+            sa_select(CourseClass.id).where(
+                CourseClass.course_id == course.id,
+                CourseClass.teacher_id == teacher.id,
+                CourseClass.deleted_at.is_(None),
+            ).limit(1)
+        )
+        teaches_a_class = class_result.scalar_one_or_none() is not None
+
+    if is_course_teacher or teaches_a_class:
+        return {
+            "can_view_full_syllabus": True,
+            "enrollment_status": None,
+            "role_for_course": "teacher",
+        }
+
+    # Students: full syllabus only with a paid/active enrollment for THIS course.
+    enrollment_result = await db.execute(
+        sa_select(Enrollment.status).where(
+            Enrollment.student_id == current_user.id,
+            Enrollment.course_id == course.id,
+        )
+    )
+    enrollment_status = enrollment_result.scalar_one_or_none()
+    can_view_full = enrollment_status in ("active", "payment_approved")
+
+    return {
+        "can_view_full_syllabus": can_view_full,
+        "enrollment_status": enrollment_status,
+        "role_for_course": "student" if enrollment_status else None,
+    }
+
+
+# ── Admin Course CRUD ─────────────────────────────────────────────
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

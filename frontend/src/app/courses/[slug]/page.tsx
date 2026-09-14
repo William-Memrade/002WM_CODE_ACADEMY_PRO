@@ -29,6 +29,14 @@ interface AvailableClass {
   teacher_name?: string;
   schedule_info?: string | null;
   available_slots?: number;
+  is_full?: boolean;
+  global_max?: number;
+}
+
+interface CourseAccess {
+  can_view_full_syllabus: boolean;
+  enrollment_status: string | null;
+  role_for_course: string | null;
 }
 
 interface CourseDetail {
@@ -50,7 +58,9 @@ interface CourseDetail {
   full_payment_discount_pct?: number;
   total_classes_count?: number;
   total_available_slots?: number;
+  raw_available_slots?: number;
   has_available_classes?: boolean;
+  needs_more_classes?: boolean;
   available_classes?: AvailableClass[];
 }
 
@@ -84,6 +94,7 @@ export default function CourseDetailPage() {
   // Auth
   const [authed, setAuthed] = useState(false);
   const [user, setUser] = useState<{ first_name: string; roles: string[]; status?: string } | null>(null);
+  const [access, setAccess] = useState<CourseAccess | null>(null);
   const { settings } = usePlatformSettings();
 
   // Payment modals
@@ -126,6 +137,17 @@ export default function CourseDetailPage() {
       .then(setCourse)
       .catch(() => setCourse(null))
       .finally(() => setLoading(false));
+
+    // Fetch access permissions (auth-optional endpoint)
+    const token = getToken();
+    fetch(`/api/v1/courses/${slug}/access`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setAccess(data);
+      })
+      .catch(() => setAccess(null));
   }, [slug]);
 
   const toggleModule = (id: string) => {
@@ -136,12 +158,8 @@ export default function CourseDetailPage() {
     });
   };
 
-  // Determine if user can see full syllabus
-  const canSeeFullSyllabus = authed && user && (
-    user.roles?.includes("admin") ||
-    user.roles?.includes("teacher") ||
-    user.roles?.includes("student")
-  );
+  // Determine if user can see full syllabus (server-side access check)
+  const canSeeFullSyllabus = access?.can_view_full_syllabus ?? false;
 
   useEffect(() => {
     // Performance fix: only open Module 1 by default instead of all modules
@@ -662,22 +680,35 @@ export default function CourseDetailPage() {
                     <div style={{ fontWeight: 600, marginBottom: "4px" }}>{cls.name}</div>
                     {cls.teacher_name && <div style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>Profesor: {cls.teacher_name}</div>}
                     {cls.schedule_info && <div style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>Horario: {cls.schedule_info}</div>}
-                    {cls.available_slots != null && (
-                      <div style={{ fontSize: "0.75rem", color: cls.available_slots > 0 ? "#22c55e" : "#ef4444", marginTop: "4px" }}>
-                        {cls.available_slots > 0 ? `${cls.available_slots} cupos disponibles` : "Sin cupos"}
+                    {cls.is_full ? (
+                      <div style={{ fontSize: "0.75rem", color: "#f59e0b", marginTop: "4px" }}>
+                        ⏳ Clase llena — nueva clase próxima
                       </div>
-                    )}
+                    ) : cls.available_slots != null ? (
+                      <div style={{ fontSize: "0.75rem", color: "#22c55e", marginTop: "4px" }}>
+                        {cls.available_slots} cupos disponibles
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {course.has_available_classes === false && (
+          {course.needs_more_classes && (
             <div style={{ padding: "12px", borderRadius: "8px", background: "#fffbeb", border: "1px solid #fde68a", color: "#92400e", marginBottom: "24px" }}>
-              ⏳ Todavía no hay clases abiertas para este curso. Puedes inscribirte y subir tu
-              comprobante: al confirmarse el pago tu inscripción queda <strong>en espera de
-              asignación de clase</strong> y te avisamos en cuanto haya una.
+              {course.total_classes_count === 0 ? (
+                <>
+                  ⏳ Todavía no hay clases abiertas para este curso. Podés inscribirte y subir tu
+                  comprobante: al confirmarse el pago tu inscripción queda <strong>en espera de
+                  asignación de clase</strong> y te avisamos en cuanto haya una.
+                </>
+              ) : (
+                <>
+                  ⏳ Las clases actuales están completas. Estamos preparando una nueva clase próximamente.
+                  Podés inscribirte y tu pago quedará en espera de asignación.
+                </>
+              )}
             </div>
           )}
         </div>
